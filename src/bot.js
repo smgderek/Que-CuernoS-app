@@ -98,3 +98,7 @@ bot.command('admin', (ctx) => {
     ctx.reply("❌ No tienes permisos para acceder aquí.");
   }
 });
+
+import http from 'http';
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => res.end('Bot activo')).listen(PORT);
