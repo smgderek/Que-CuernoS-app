@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { Bot, Keyboard, InlineKeyboard } = require('grammy');
+import 'dotenv/config';
+import { Bot, Keyboard, InlineKeyboard } from 'grammy';
 
 const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN);
 const ADMIN_ID = Number(process.env.ADMIN_TELEGRAM_ID);
