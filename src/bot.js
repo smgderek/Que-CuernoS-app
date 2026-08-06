@@ -119,3 +119,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🌐 Servidor HTTP activo en puerto ${PORT}`);
 });
+
+app.get('/operaciones.html', (req, res) => {
+  res.sendFile(path.resolve('operaciones.html'));
+});

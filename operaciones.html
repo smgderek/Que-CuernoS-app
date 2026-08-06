@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de Operaciones - Que!Cuerno$</title>
+  <!-- CSS Leaflet Map (Gratuito para mapas) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+    }
+
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: #000;
+      text-align: center;
+      padding: 8px 0;
+      border-bottom: 2px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      color: #fff;
+      font-size: 2.2rem;
+      flex-grow: 1;
+    }
+
+    .btn-back {
+      font-size: 1.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    /* 1. Horario de Entrega Interactivo */
+    .schedule-box {
+      border: 2px solid #ffffff;
+      padding: 10px;
+      text-align: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      border-radius: 8px;
+      background-color: #ff0000; /* Rojo por defecto (Negado) */
+      color: #ffffff;
+      transition: background-color 0.2s ease;
+      user-select: none;
+    }
+
+    .schedule-box.active {
+      background-color: #00e676; /* Verde (Confirmado) */
+      color: #000000;
+    }
+
+    /* 2. Sección Ordenes + Clientes */
+    .top-section {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 10px;
+      height: 140px;
+    }
+
+    .orders-scroll {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 8px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #0a0a0a;
+    }
+
+    .order-item {
+      background: #1e1e1e;
+      padding: 6px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-left: 3px solid #ffff00;
+    }
+
+    .clients-scroll {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 8px;
+      overflow-x: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: #0a0a0a;
+    }
+
+    .client-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid #ffff00;
+      flex-shrink: 0;
+      background: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* 3. Grid de 8 Órdenes Pendientes de Pago */
+    .pending-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .pending-card {
+      border: 1px solid #555;
+      background: #111;
+      padding: 6px 2px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .pending-card span {
+      display: block;
+      color: #ff9800;
+      font-size: 0.75rem;
+    }
+
+    /* 4. Mapa GPS */
+    #map {
+      width: 100%;
+      height: 180px;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+
+    /* 5. Footer con Botón Cuernito y Paloma */
+    footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .btn-action {
+      background: #1a1a1a;
+      border: 2px solid #fff;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* --- VENTANAS FLOTANTES (MODALES) --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-card {
+      background: #000000;
+      border: 2px solid #ffffff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 350px;
+      padding: 15px;
+      position: relative;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #ff0000;
+    }
+
+    .btn-confirm-top {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #00e676;
+    }
+
+    .modal-title {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-top: 15px;
+    }
+
+    /* Inputs y Selección */
+    .modal-input {
+      background: #111;
+      border: 1px solid #555;
+      color: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      width: 100%;
+    }
+
+    .select-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-select {
+      flex: 1;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .btn-select.active {
+      background: #00e676;
+      color: #000000;
+      font-weight: bold;
+    }
+
+    .btn-main-green {
+      background: #00e676;
+      color: #000;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="admin.html" class="btn-back">⬅️</a>
+    <h1>Que!Cuerno$</h1>
+  </header>
+
+  <!-- 1. Horario -->
+  <div class="schedule-box" id="scheduleBtn" onclick="toggleSchedule()">
+    ⏰ 01:00 - 12:00
+  </div>
+
+  <!-- 2. Ordenes y Clientes -->
+  <div class="top-section">
+    <div class="orders-scroll">
+      <div class="order-item" onclick="openModal('modalOrden')">Orden #1 🥐</div>
+      <div class="order-item" onclick="openModal('modalOrden')">Orden #2 🥐</div>
+      <div class="order-item" onclick="openModal('modalOrden')">Orden #3 🥐</div>
+    </div>
+    <div class="clients-scroll">
+      <div class="client-avatar" onclick="alert('Chat con Cliente 1')">👤</div>
+      <div class="client-avatar" onclick="alert('Chat con Cliente 2')">👤</div>
+      <div class="client-avatar" onclick="alert('Chat con Cliente 3')">👤</div>
+      <div class="client-avatar" onclick="alert('Chat con Cliente 4')">👤</div>
+    </div>
+  </div>
+
+  <!-- 3. 8 Pendientes de Pago -->
+  <div class="pending-grid">
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-1 <span>19m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-2 <span>15m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-3 <span>12m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-4 <span>08m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-5 <span>05m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-6 <span>03m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-7 <span>02m</span></div>
+    <div class="pending-card" onclick="openModal('modalPendiente')">P-8 <span>01m</span></div>
+  </div>
+
+  <!-- 4. Mapa -->
+  <div id="map"></div>
+
+  <!-- 5. Footer con Acciones -->
+  <footer>
+    <button class="btn-action" onclick="alert('Registrar Cuerno Extra')">🥐 Cuerno</button>
+    <button class="btn-action" onclick="openModal('modalRegistroVenta')">✅ Venta</button>
+  </footer>
+
+  <!-- ================= VENTANAS FLOTANTES ================= -->
+
+  <!-- Modal 1: Registrar Venta (Palomita Verde) -->
+  <div class="modal-overlay" id="modalRegistroVenta">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalRegistroVenta')">❌</button>
+      <button class="btn-confirm-top" onclick="registrarVenta()">✅</button>
+      <div class="modal-title">Registrar Venta</div>
+
+      <label>Cantidad 🥐</label>
+      <input type="number" class="modal-input" value="1" id="ventaCant">
+
+      <label>Tipo</label>
+      <div class="select-group">
+        <button class="btn-select active" onclick="selectType(this)">Sencillo</button>
+        <button class="btn-select" onclick="selectType(this)">Relleno</button>
+      </div>
+
+      <label>Precio $</label>
+      <input type="number" class="modal-input" value="35" id="ventaPrecio">
+
+      <label>Método de Pago</label>
+      <div class="select-group">
+        <button class="btn-select active" onclick="selectPay(this)">💵</button>
+        <button class="btn-select" onclick="selectPay(this)">💳</button>
+        <button class="btn-select" onclick="selectPay(this)">🅰️</button>
+      </div>
+
+      <label>Cliente</label>
+      <input type="text" class="modal-input" placeholder="Nombre / Telegram @">
+    </div>
+  </div>
+
+  <!-- Modal 2: Detalle de Orden -->
+  <div class="modal-overlay" id="modalOrden">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
+      <div class="modal-title">Orden #1</div>
+      <p>👤 <strong>Cliente:</strong> @usuario</p>
+      <p>📝 <strong>Comanda:</strong> 2x Nutella, 1x Queso</p>
+      <p>📍 <strong>Dirección:</strong> Av. Principal #123</p>
+      <p>⏰ <strong>Entrega:</strong> 02:30 PM</p>
+      <p>📄 <strong>Notas:</strong> Entregar en puerta</p>
+    </div>
+  </div>
+
+  <!-- Modal 3: Pendiente de Pago -->
+  <div class="modal-overlay" id="modalPendiente">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalPendiente')">❌</button>
+      <div class="modal-title">Pendiente Pago</div>
+      <p>👤 <strong>Cliente:</strong> @usuario</p>
+      <p>📝 <strong>Comanda:</strong> 1x Jamón y Queso</p>
+      <p>💳 <strong>Pago:</strong> SPEI Transferencia</p>
+      <p>⏳ <strong>Estado:</strong> Esperando Captura</p>
+      <button class="btn-main-green" onclick="confirmarPago()">Confirmar Pago</button>
+    </div>
+  </div>
+
+  <!-- JS para Mapa y Modales -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // 1. Horario Toggle
+    function toggleSchedule() {
+      const btn = document.getElementById('scheduleBtn');
+      btn.classList.toggle('active');
+    }
+
+    // 2. Modales
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function selectType(btn) {
+      btn.parentElement.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function selectPay(btn) {
+      btn.parentElement.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function registrarVenta() {
+      alert('¡Venta registrada con éxito!');
+      closeModal('modalRegistroVenta');
+    }
+
+    function confirmarPago() {
+      alert('¡Pago confirmado!');
+      closeModal('modalPendiente');
+    }
+
+    // 3. Inicializar Mapa (Ubicación por defecto con Radio de 2km)
+    const map = L.map('map').setView([19.6865, -99.1126], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(map);
+
+    // Marcador y Radio 2 km
+    L.marker([19.6865, -99.1126]).addTo(map).bindPopup('Centro de Operaciones').openPopup();
+    L.circle([19.6865, -99.1126], {
+      color: '#ffff00',
+      fillColor: '#ffff00',
+      fillOpacity: 0.15,
+      radius: 2000 // 2 km
+    }).addTo(map);
+  </script>
+</body>
+</html>
