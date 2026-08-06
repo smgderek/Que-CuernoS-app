@@ -100,5 +100,22 @@ bot.command('admin', (ctx) => {
 });
 
 import http from 'http';
+import fs from 'fs';
+import path from 'path';
+
 const PORT = process.env.PORT || 3000;
-http.createServer((req, res) => res.end('Bot activo')).listen(PORT);
+
+http.createServer((req, res) => {
+  // Servir el archivo admin.html si se solicita o por defecto
+  const filePath = path.resolve('public/admin.html');
+  
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('Bot activo y escuchando...');
+    } else {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(content);
+    }
+  });
+}).listen(PORT);
