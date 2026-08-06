@@ -394,12 +394,20 @@
 
     // 2. Modales
     function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
-    }
+  // Oculta el mapa para que no estorbe
+  document.getElementById('map').style.display = 'none';
+  document.getElementById(id).style.display = 'flex';
+}
 
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  // Vuelve a mostrar el mapa y recalculamos su tamaño
+  const mapContainer = document.getElementById('map');
+  mapContainer.style.display = 'block';
+  if (typeof map !== 'undefined') {
+    map.invalidateSize();
+  }
+}
 
     function selectType(btn) {
       btn.parentElement.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
@@ -412,14 +420,14 @@
     }
 
     function registrarVenta() {
-      alert('¡Venta registrada con éxito!');
-      closeModal('modalRegistroVenta');
-    }
+  alert('¡Venta registrada con éxito!');
+  closeModal('modalRegistroVenta'); // Esto ya volverá a mostrar el mapa
+}
 
-    function confirmarPago() {
-      alert('¡Pago confirmado!');
-      closeModal('modalPendiente');
-    }
+function confirmarPago() {
+  alert('¡Pago confirmado!');
+  closeModal('modalPendiente'); // Esto ya volverá a mostrar el mapa
+}
 
     // 3. Inicializar Mapa (Ubicación por defecto con Radio de 2km)
     const map = L.map('map').setView([19.6865, -99.1126], 13);
