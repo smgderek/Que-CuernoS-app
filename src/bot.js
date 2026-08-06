@@ -90,7 +90,7 @@ bot.command('admin', (ctx) => {
     ctx.reply("Bienvenido Jefe. Accede al panel:", {
       reply_markup: {
         inline_keyboard: [[
-          { text: "⚙️ Abrir Admin", web_app: { url: "https://tu-dominio.com/admin.html" } }
+          { text: "⚙️ Abrir Admin", web_app: { url: "https://que-cuernos-bot.onrender.com" } }
         ]]
       }
     });
