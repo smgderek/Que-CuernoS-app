@@ -19,17 +19,20 @@
       flex-direction: column;
       justify-content: space-between;
       min-height: 100vh;
-      padding: 10px 20px 20px 20px;
+      padding: 0 0 20px 0; /* Quitamos padding superior para que la barra negra pegue al borde */
     }
 
-    /* Header */
+    /* Header con recuadro negro y texto blanco */
     header {
+      background-color: #000000;
       text-align: center;
-      padding: 10px 0;
+      padding: 12px 0;
+      width: 100%;
     }
 
     header h1 {
-      font-size: 3rem;
+      color: #ffffff;
+      font-size: 2.8rem;
       letter-spacing: 1px;
       font-weight: 900;
     }
@@ -42,6 +45,7 @@
       justify-items: center;
       align-items: center;
       margin: auto 0;
+      padding: 0 20px;
     }
 
     .star-wrapper {
@@ -54,19 +58,16 @@
       cursor: pointer;
     }
 
-    /* Estrella SVG */
     .star-shape {
       width: 100%;
       height: 100%;
-      fill: #ffff00; /* Amarillo Illustrator */
+      fill: #ffff00;
     }
 
-    /* Emoji centrado dentro de la estrella */
     .star-emoji {
       position: absolute;
       font-size: 2.2rem;
       z-index: 2;
-      /* Ajuste fino de centrado visual */
       transform: translateY(2px);
     }
 
@@ -75,7 +76,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 15px;
+      padding: 10px 30px;
       margin-top: 20px;
     }
 
@@ -100,7 +101,7 @@
 </head>
 <body>
 
-  <!-- Encabezado -->
+  <!-- Encabezado con Fondo Negro y Texto Blanco -->
   <header>
     <h1>Que!Cuerno$</h1>
   </header>
@@ -108,37 +109,31 @@
   <!-- Panel de 6 Estrellas -->
   <main class="grid-container">
     
-    <!-- 1. Antena / Radar -->
     <div class="star-wrapper" onclick="alert('Opción Radar/GPS')">
       <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
       <span class="star-emoji">📡</span>
     </div>
 
-    <!-- 2. Caja / Inventario -->
     <div class="star-wrapper" onclick="alert('Opción Inventario')">
       <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
       <span class="star-emoji">📦</span>
     </div>
 
-    <!-- 3. Muñeco de Nieve / Estado -->
     <div class="star-wrapper" onclick="alert('Opción Clima/Estado')">
       <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
       <span class="star-emoji">☃️</span>
     </div>
 
-    <!-- 4. Joystick / Control -->
     <div class="star-wrapper" onclick="alert('Opción Control/Modos')">
       <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
       <span class="star-emoji">🕹️</span>
     </div>
 
-    <!-- 5. Gráfica de Barras -->
     <div class="star-wrapper" onclick="alert('Opción Reporte Ventas')">
       <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
       <span class="star-emoji">📊</span>
     </div>
 
-    <!-- 6. Gráfica Verde -->
     <div class="star-wrapper" onclick="alert('Opción Métricas')">
       <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
       <span class="star-emoji">📈</span>
@@ -153,12 +148,10 @@
       <span>X 0</span>
     </div>
 
-    <!-- Bandera Interactiva -->
     <div class="flag-toggle" id="flagBtn" onclick="toggleFlag()">🏴</div>
   </footer>
 
   <script>
-    // Rotación de Banderas: Negra -> Blanca -> A Cuadros -> Negra
     const flags = ['🏴', '🏳️', '🏁'];
     let currentFlagIndex = 0;
 
