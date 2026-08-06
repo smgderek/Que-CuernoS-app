@@ -99,23 +99,23 @@ bot.command('admin', (ctx) => {
   }
 });
 
-import http from 'http';
-import fs from 'fs';
+import express from 'express';
 import path from 'path';
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-http.createServer((req, res) => {
-  // Servir el archivo admin.html si se solicita o por defecto
-  const filePath = path.resolve('src/admin.html');
-  
-  fs.readFile(filePath, (err, content) => {
-    if (err) {
-      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Bot activo y escuchando...');
-    } else {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(content);
-    }
-  });
-}).listen(PORT);
+// Servir la carpeta public o la raíz para el admin.html
+app.use(express.static('public'));
+
+app.get('/admin.html', (req, res) => {
+  res.sendFile(path.resolve('admin.html'));
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.resolve('admin.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`🌐 Servidor HTTP activo en puerto ${PORT}`);
+});
