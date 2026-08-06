@@ -2,20 +2,29 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel Administrador - Que Cuernos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - Que Cuernos</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: white; }
-    .card { background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+    body { font-family: system-ui, sans-serif; background: #121212; color: white; padding: 20px; margin: 0; }
+    .card { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+    .badge { background: #ff9800; color: black; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+    button { background: #e91e63; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>🥐 Panel de Control (Privado)</h1>
-  <div id="pedidos">
-    <h3>Pedidos en tiempo real:</h3>
-    <div class="card">
-      <p><strong>Pedido #001:</strong> 2x Croissants Clásicos</p>
-      <p><strong>Estado:</strong> En cocina ⏳</p>
-    </div>
+  <h2>👑 Panel Admin: Que-CuernoS</h2>
+  
+  <div class="card">
+    <span class="badge">ESTADO DEL RADAR</span>
+    <h3>📍 Coordenadas de Mochila</h3>
+    <p>Radio activo: <strong>2 km</strong></p>
+    <p>Estado: <strong>En Ruta 🚴</strong></p>
+  </div>
+
+  <div class="card">
+    <h3>📦 Inventario al Vuelo</h3>
+    <p>🥐 Panes disponibles: <strong>15 unidades</strong></p>
+    <p>🧀 Queso: <strong>Disponible</strong></p>
   </div>
 </body>
 </html>
