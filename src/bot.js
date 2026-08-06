@@ -112,6 +112,10 @@ app.get('/admin.html', (req, res) => {
   res.sendFile(path.resolve('admin.html'));
 });
 
+app.get('/operaciones.html', (req, res) => {
+  res.sendFile(path.resolve('operaciones.html'));
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('admin.html'));
 });
@@ -120,6 +124,3 @@ app.listen(PORT, () => {
   console.log(`🌐 Servidor HTTP activo en puerto ${PORT}`);
 });
 
-app.get('/operaciones.html', (req, res) => {
-  res.sendFile(path.resolve('operaciones.html'));
-});
