@@ -107,7 +107,7 @@ const PORT = process.env.PORT || 3000;
 
 http.createServer((req, res) => {
   // Servir el archivo admin.html si se solicita o por defecto
-  const filePath = path.resolve('public/admin.html');
+  const filePath = path.resolve('src/admin.html');
   
   fs.readFile(filePath, (err, content) => {
     if (err) {
