@@ -3,28 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Admin - Que Cuernos</title>
+  <title>Que!Cuerno$ Admin</title>
   <style>
-    body { font-family: system-ui, sans-serif; background: #121212; color: white; padding: 20px; margin: 0; }
-    .card { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-    .badge { background: #ff9800; color: black; padding: 4px 8px; border-radius: 6px; font-weight: bold; font-size: 12px; }
-    button { background: #e91e63; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      padding: 10px 20px 20px 20px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      letter-spacing: 1px;
+      font-weight: 900;
+    }
+
+    /* Grid de Estrellas */
+    .grid-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 10px;
+      justify-items: center;
+      align-items: center;
+      margin: auto 0;
+    }
+
+    .star-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    /* Estrella SVG */
+    .star-shape {
+      width: 100%;
+      height: 100%;
+      fill: #ffff00; /* Amarillo Illustrator */
+    }
+
+    /* Emoji centrado dentro de la estrella */
+    .star-emoji {
+      position: absolute;
+      font-size: 2.2rem;
+      z-index: 2;
+      /* Ajuste fino de centrado visual */
+      transform: translateY(2px);
+    }
+
+    /* Footer */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      margin-top: 20px;
+    }
+
+    .counter-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 2.2rem;
+    }
+
+    .flag-toggle {
+      font-size: 2.5rem;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+    .flag-toggle:active {
+      transform: scale(0.9);
+    }
   </style>
 </head>
 <body>
-  <h2>👑 Panel Admin: Que-CuernoS</h2>
-  
-  <div class="card">
-    <span class="badge">ESTADO DEL RADAR</span>
-    <h3>📍 Coordenadas de Mochila</h3>
-    <p>Radio activo: <strong>2 km</strong></p>
-    <p>Estado: <strong>En Ruta 🚴</strong></p>
-  </div>
 
-  <div class="card">
-    <h3>📦 Inventario al Vuelo</h3>
-    <p>🥐 Panes disponibles: <strong>15 unidades</strong></p>
-    <p>🧀 Queso: <strong>Disponible</strong></p>
-  </div>
+  <!-- Encabezado -->
+  <header>
+    <h1>Que!Cuerno$</h1>
+  </header>
+
+  <!-- Panel de 6 Estrellas -->
+  <main class="grid-container">
+    
+    <!-- 1. Antena / Radar -->
+    <div class="star-wrapper" onclick="alert('Opción Radar/GPS')">
+      <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
+      <span class="star-emoji">📡</span>
+    </div>
+
+    <!-- 2. Caja / Inventario -->
+    <div class="star-wrapper" onclick="alert('Opción Inventario')">
+      <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
+      <span class="star-emoji">📦</span>
+    </div>
+
+    <!-- 3. Muñeco de Nieve / Estado -->
+    <div class="star-wrapper" onclick="alert('Opción Clima/Estado')">
+      <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
+      <span class="star-emoji">☃️</span>
+    </div>
+
+    <!-- 4. Joystick / Control -->
+    <div class="star-wrapper" onclick="alert('Opción Control/Modos')">
+      <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
+      <span class="star-emoji">🕹️</span>
+    </div>
+
+    <!-- 5. Gráfica de Barras -->
+    <div class="star-wrapper" onclick="alert('Opción Reporte Ventas')">
+      <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
+      <span class="star-emoji">📊</span>
+    </div>
+
+    <!-- 6. Gráfica Verde -->
+    <div class="star-wrapper" onclick="alert('Opción Métricas')">
+      <svg class="star-shape" viewBox="0 0 24 24"><path d="M12 1.7L15.3 8.4L22.7 9.5L17.3 14.7L18.6 22.1L12 18.6L5.4 22.1L6.7 14.7L1.3 9.5L8.7 8.4L12 1.7Z"/></svg>
+      <span class="star-emoji">📈</span>
+    </div>
+
+  </main>
+
+  <!-- Pie de página -->
+  <footer>
+    <div class="counter-container">
+      <span>🥐</span>
+      <span>X 0</span>
+    </div>
+
+    <!-- Bandera Interactiva -->
+    <div class="flag-toggle" id="flagBtn" onclick="toggleFlag()">🏴</div>
+  </footer>
+
+  <script>
+    // Rotación de Banderas: Negra -> Blanca -> A Cuadros -> Negra
+    const flags = ['🏴', '🏳️', '🏁'];
+    let currentFlagIndex = 0;
+
+    function toggleFlag() {
+      currentFlagIndex = (currentFlagIndex + 1) % flags.length;
+      document.getElementById('flagBtn').textContent = flags[currentFlagIndex];
+    }
+  </script>
 </body>
 </html>
