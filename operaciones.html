@@ -545,7 +545,7 @@
     </div>
   </div>
 
-  <div class="pending-grid">
+  <div class="pending-grid" id="pendingGrid">
     <div class="pending-card" onclick="openModal('modalPendiente')">P-1 <span>19m</span></div>
     <div class="pending-card" onclick="openModal('modalPendiente')">P-2 <span>15m</span></div>
     <div class="pending-card" onclick="openModal('modalPendiente')">P-3 <span>12m</span></div>
@@ -691,6 +691,7 @@
   <script>
     let activeOrderId = null;
     let activeClientId = null;
+    let nextOrderNumber = 4; // Contador para generar la siguiente orden automáticamente
 
     function toggleSchedule() {
       const btn = document.getElementById('scheduleBtn');
@@ -711,7 +712,6 @@
       }
     }
 
-    // Abrir Modal de Orden Guardando Referencias
     function abrirDetalleOrden(orderId, clientId, titulo) {
       activeOrderId = orderId;
       activeClientId = clientId;
@@ -719,35 +719,51 @@
       openModal('modalOrden');
     }
 
-    // Lógica para Botón "Orden Entregada"
+    // Marca Orden como Entregada (SIN MENSAJES FLOTANTES)
     function marcarOrdenEntregada() {
-      // 1. Eliminar la Orden
       if (activeOrderId) {
         const orderEl = document.getElementById(activeOrderId);
         if (orderEl) orderEl.remove();
       }
 
-      // 2. Eliminar el Chat / Perfil del cliente de la interfaz
       if (activeClientId) {
         const clientEl = document.getElementById(activeClientId);
         if (clientEl) clientEl.remove();
       }
 
-      alert('✅ ¡Orden marcada como ENTREGADA! Se eliminó la orden y el chat para mantener la interfaz limpia.');
       closeModal('modalOrden');
     }
 
-    // Abrir Chat y Mover al primer lugar
+    // Confirmar Pago: Genera automáticamente la nueva Orden en la lista
+    function confirmarPago() {
+      const ordersList = document.getElementById('ordersList');
+      
+      const newOrderId = `order-${nextOrderNumber}`;
+      const newClientId = `client-${nextOrderNumber}`;
+      const newOrderTitle = `Orden #${nextOrderNumber}`;
+
+      const newOrderDiv = document.createElement('div');
+      newOrderDiv.className = 'order-item';
+      newOrderDiv.id = newOrderId;
+      newOrderDiv.innerHTML = `${newOrderTitle} 🥐`;
+      newOrderDiv.onclick = function() {
+        abrirDetalleOrden(newOrderId, newClientId, newOrderTitle);
+      };
+
+      ordersList.appendChild(newOrderDiv);
+      nextOrderNumber++;
+
+      closeModal('modalPendiente');
+    }
+
     function openChat(nombre, avatar, el) {
       document.getElementById('chatName').innerText = nombre;
       document.getElementById('chatAvatar').innerText = avatar;
 
       if (el) {
-        // Quitar badge si existe
         const badge = el.querySelector('.unread-badge');
         if (badge) badge.remove();
 
-        // Mover cliente al INICIO de la lista (Primer lugar)
         const parent = document.getElementById('clientsList');
         parent.prepend(el);
       }
@@ -784,13 +800,7 @@
     }
 
     function registrarVenta() {
-      alert('¡Venta registrada con éxito!');
       closeModal('modalRegistroVenta');
-    }
-
-    function confirmarPago() {
-      alert('¡Pago confirmado!');
-      closeModal('modalPendiente');
     }
 
     function selectOption(btn) {
