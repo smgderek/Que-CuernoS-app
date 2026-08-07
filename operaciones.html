@@ -544,9 +544,24 @@
         </div>
       </div>
 
-      <div class="detail-item">
+      <div class="detail-item" id="detailAddressGroup">
         <label>Dirección de Entrega:</label>
         <span id="modalOrderAddress">Calle Principal #123, Col. Centro</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Fecha y Hora:</label>
+        <span id="modalOrderDateTime">07/08/2026 - 16:30 hrs</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Método de Pago:</label>
+        <span id="modalOrderPaymentMethod">💵 Efec.</span>
+      </div>
+
+      <div class="detail-item" id="detailSpecsGroup">
+        <label>Especificaciones de Entrega:</label>
+        <span id="modalOrderSpecs">Sin servilletas, timbre fallando</span>
       </div>
 
       <button class="btn-yellow-delivered" onclick="marcarEntregado()">¡ENTREGADO!</button>
@@ -588,7 +603,7 @@
       </div>
       <div class="detail-item">
         <label>Tiempo Restante:</label>
-        <span id="pagoTimer" style="color: #ff5252; font-weight: bold;">29:50 min</span>
+        <span id="pagoTimer" style="color: #ff5252; font-weight: bold;">30:00 min</span>
       </div>
 
       <button class="btn-main-green" onclick="confirmarPagoSPEI()">CONFIRMAR SPEI ✅</button>
@@ -642,19 +657,74 @@
     let selectedPendingId = null;
 
     let activeOrders = [
-      { id: 'ord-1', title: 'Orden #1', user: '@carlos_m', avatar: '👨', comanda: '• 2x Cuerno Salado\n• 1x Refresco', address: 'Av. Las Palmas #45', clientId: 'cli-1' },
-      { id: 'ord-2', title: 'Orden #2', user: '@ana_g', avatar: '👩', comanda: '• 1x Cuerno Dulce', address: 'Calle Sauces #12', clientId: 'cli-2' }
+      {
+        id: 'ord-1',
+        title: 'Orden #1',
+        user: '@carlos_m',
+        avatar: '👨',
+        comanda: '• 2x Cuerno Salado\n• 1x Refresco',
+        address: 'Av. Las Palmas #45',
+        dateTime: '07/08/2026 - 16:15 hrs',
+        paymentMethod: '💳 Tarj.',
+        specs: 'Tocar timbre fuerte',
+        isDirectSale: false,
+        clientId: 'cli-1'
+      },
+      {
+        id: 'ord-2',
+        title: 'Orden #2',
+        user: '@ana_g',
+        avatar: '👩',
+        comanda: '• 1x Cuerno Dulce',
+        address: 'Calle Sauces #12',
+        dateTime: '07/08/2026 - 16:20 hrs',
+        paymentMethod: '🅰️ App',
+        specs: 'Dejar en recepción',
+        isDirectSale: false,
+        clientId: 'cli-2'
+      }
     ];
 
     let activeClients = [
-      { id: 'cli-1', name: 'Carlos M.', user: '@carlos_m', avatar: '👨', orderId: 'ord-1', chatHistory: [{ sender: 'client', text: '¡Hola! ¿Cuánto tarda mi pedido?', time: '14:20' }] },
-      { id: 'cli-2', name: 'Ana G.', user: '@ana_g', avatar: '👩', orderId: 'ord-2', chatHistory: [{ sender: 'client', text: '¿Tienen salsa extra?', time: '14:25' }] }
+      { id: 'cli-1', name: 'Carlos M.', user: '@carlos_m', avatar: '👨', orderId: 'ord-1', chatHistory: [{ sender: 'client', text: '¡Hola! ¿Cuánto tarda mi pedido?', time: '16:15' }] },
+      { id: 'cli-2', name: 'Ana G.', user: '@ana_g', avatar: '👩', orderId: 'ord-2', chatHistory: [{ sender: 'client', text: '¿Tienen salsa extra?', time: '16:20' }] }
     ];
 
+    // Temporizador inicializado en segundos (1695s = 28m 15s)
     let pendingPayments = [
-      { id: 'pago-1', user: '@luis_p', monto: '$120.00', comanda: '• 2x Cuerno Especial', timer: '28:15' },
-      { id: 'pago-2', user: '@marta_r', monto: '$85.00', comanda: '• 1x Cuerno Dulce + Café', timer: '19:40' }
+      { id: 'pago-1', user: '@luis_p', monto: '$120.00', comanda: '• 2x Cuerno Especial', secondsLeft: 1695 },
+      { id: 'pago-2', user: '@marta_r', monto: '$85.00', comanda: '• 1x Cuerno Dulce + Café', secondsLeft: 1180 }
     ];
+
+    // --- MANEJO DEL CONTADOR DE TIEMPO (PAGOS PENDIENTES) ---
+    function formatTimer(seconds) {
+      if (seconds <= 0) return '00:00 min';
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s} min`;
+    }
+
+    // Intervalo continuo de 1 segundo para actualizar los contadores
+    setInterval(() => {
+      let needsRender = false;
+      pendingPayments.forEach(pago => {
+        if (pago.secondsLeft > 0) {
+          pago.secondsLeft--;
+          needsRender = true;
+        }
+      });
+
+      if (needsRender || pendingPayments.length > 0) {
+        renderPendingGrid();
+        if (selectedPendingId) {
+          const pagoActivo = pendingPayments.find(p => p.id === selectedPendingId);
+          if (pagoActivo) {
+            const timerElem = document.getElementById('pagoTimer');
+            if (timerElem) timerElem.innerText = formatTimer(pagoActivo.secondsLeft);
+          }
+        }
+      }
+    }, 1000);
 
     // --- HORARIO DE ENTREGA ---
     function toggleSchedule() {
@@ -694,12 +764,17 @@
       });
 
       // 3. Renderizar Pagos Pendientes
+      renderPendingGrid();
+    }
+
+    function renderPendingGrid() {
       const pendingGrid = document.getElementById('pendingGrid');
+      if (!pendingGrid) return;
       pendingGrid.innerHTML = '';
       pendingPayments.forEach(pago => {
         const card = document.createElement('div');
         card.className = 'pending-card';
-        card.innerHTML = `<div>${pago.user}</div><div style="font-size:0.75rem; color:#ff5252;">⏱ ${pago.timer}</div>`;
+        card.innerHTML = `<div>${pago.user}</div><div style="font-size:0.75rem; color:#ff5252;">⏱ ${formatTimer(pago.secondsLeft)}</div>`;
         card.onclick = () => openPagoModal(pago.id);
         pendingGrid.appendChild(card);
       });
@@ -723,14 +798,42 @@
       document.getElementById('modalOrderAvatar').innerText = order.avatar;
       document.getElementById('modalOrderUser').innerText = order.user;
       document.getElementById('modalOrderComanda').innerText = order.comanda;
-      document.getElementById('modalOrderAddress').innerText = order.address;
+      document.getElementById('modalOrderDateTime').innerText = order.dateTime || getFechaHoraActual();
+      document.getElementById('modalOrderPaymentMethod').innerText = order.paymentMethod || '💵 Efec.';
+
+      const addrGroup = document.getElementById('detailAddressGroup');
+      const specsGroup = document.getElementById('detailSpecsGroup');
+
+      // Si es Venta Directa, ocultar Dirección y Especificaciones
+      if (order.isDirectSale) {
+        if (addrGroup) addrGroup.style.display = 'none';
+        if (specsGroup) specsGroup.style.display = 'none';
+      } else {
+        if (addrGroup) {
+          addrGroup.style.display = 'flex';
+          document.getElementById('modalOrderAddress').innerText = order.address || 'Sin dirección registrada';
+        }
+        if (specsGroup) {
+          specsGroup.style.display = 'flex';
+          document.getElementById('modalOrderSpecs').innerText = order.specs || 'Sin especificaciones';
+        }
+      }
 
       openModal('modalOrden');
     }
 
+    // Marca como entregado y borra tanto la orden como el cliente/chat al mismo tiempo
     function marcarEntregado() {
       if (selectedOrderId) {
-        activeOrders = activeOrders.filter(o => o.id !== selectedOrderId);
+        const order = activeOrders.find(o => o.id === selectedOrderId);
+        if (order) {
+          if (order.clientId) {
+            activeClients = activeClients.filter(c => c.id !== order.clientId);
+          } else {
+            activeClients = activeClients.filter(c => c.user !== order.user);
+          }
+          activeOrders = activeOrders.filter(o => o.id !== selectedOrderId);
+        }
         renderOrdersAndClients();
         closeModal('modalOrden');
       }
@@ -795,7 +898,7 @@
 
       document.getElementById('pagoCliente').innerText = pago.user;
       document.getElementById('pagoMonto').innerText = `${pago.monto} - ${pago.comanda}`;
-      document.getElementById('pagoTimer').innerText = `${pago.timer} min`;
+      document.getElementById('pagoTimer').innerText = formatTimer(pago.secondsLeft);
 
       openModal('modalPago');
     }
@@ -814,7 +917,11 @@
             user: pago.user,
             avatar: '💳',
             comanda: pago.comanda,
-            address: 'Pago SPEI Confirmado',
+            address: 'Calle Juárez #45, Col. Centro',
+            dateTime: getFechaHoraActual(),
+            paymentMethod: '🅰️ App (SPEI)',
+            specs: 'Verificado por SPEI',
+            isDirectSale: false,
             clientId: newClientId
           });
 
@@ -869,7 +976,9 @@
         user: clienteInput,
         avatar: '🛍️',
         comanda: comandaTexto,
-        address: `Venta Directa (${metodoSel})`,
+        dateTime: getFechaHoraActual(),
+        paymentMethod: metodoSel,
+        isDirectSale: true,
         clientId: clientId
       };
 
@@ -912,6 +1021,13 @@
     function getHoraActual() {
       const now = new Date();
       return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    }
+
+    function getFechaHoraActual() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const timeStr = getHoraActual();
+      return `${dateStr} - ${timeStr} hrs`;
     }
 
     // --- INICIALIZAR MAPA LEAFLET ---
