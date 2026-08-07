@@ -92,9 +92,12 @@
       font-size: 1rem;
       cursor: pointer;
       border-left: 3px solid #ffff00;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    /* Contenedor de Clientes con Scroll Vertical */
+    /* Contenedor de Clientes */
     .clients-scroll {
       border: 1px solid #444;
       border-radius: 8px;
@@ -108,10 +111,10 @@
       background: #0a0a0a;
     }
 
-    /* Avatar del Cliente con soporte de badge de notificación */
     .client-avatar-container {
       position: relative;
       display: inline-block;
+      transition: all 0.3s ease;
     }
 
     .client-avatar {
@@ -128,7 +131,6 @@
       cursor: pointer;
     }
 
-    /* Badge de notificación en círculo rojo */
     .unread-badge {
       position: absolute;
       top: -2px;
@@ -147,7 +149,7 @@
       border: 1px solid #000;
     }
 
-    /* 3. Grid de 8 Órdenes Pendientes de Pago */
+    /* 3. Grid de Órdenes Pendientes de Pago */
     .pending-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -179,7 +181,7 @@
       z-index: 1;
     }
 
-    /* 5. Footer con solo Emojis */
+    /* 5. Footer */
     footer {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -200,7 +202,7 @@
       justify-content: center;
     }
 
-    /* --- ESTILO DE VENTANAS FLOTANTES --- */
+    /* Modales */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -245,7 +247,6 @@
       letter-spacing: 1px;
     }
 
-    /* Cabecera interna: Cliente (Izquierda) + Comanda (Derecha) */
     .modal-header-grid {
       display: grid;
       grid-template-columns: 1fr 1.2fr;
@@ -288,7 +289,6 @@
       font-size: 1rem;
     }
 
-    /* Lista de detalles dentro de Modales */
     .detail-item {
       display: flex;
       flex-direction: column;
@@ -310,7 +310,20 @@
       color: #fff;
     }
 
-    /* Botón Verde Principal */
+    /* Botón Amarillo Orden Entregada */
+    .btn-yellow-delivered {
+      background: #ffff00;
+      color: #000000;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 6px;
+      text-align: center;
+    }
+
     .btn-main-green {
       background: #00e676;
       color: #000000;
@@ -323,7 +336,7 @@
       margin-top: 6px;
     }
 
-    /* Modal Registrar Venta */
+    /* Registrar Venta */
     .sale-modal-header {
       display: flex;
       justify-content: space-between;
@@ -390,7 +403,7 @@
       padding-left: 40px;
     }
 
-    /* Modal Chat Específico */
+    /* Modal Chat */
     .chat-header {
       display: flex;
       flex-direction: column;
@@ -418,20 +431,17 @@
       border-radius: 8px;
       font-size: 0.85rem;
       font-family: Arial, sans-serif;
-      position: relative;
     }
 
     .chat-msg.client {
       background: #222;
       align-self: flex-start;
-      border-bottom-left-radius: 0;
     }
 
     .chat-msg.admin {
       background: #1e3d2f;
       color: #00e676;
       align-self: flex-end;
-      border-bottom-right-radius: 0;
     }
 
     .msg-time {
@@ -508,37 +518,29 @@
   </div>
 
   <div class="top-section">
-    <div class="orders-scroll">
-      <div class="order-item" onclick="openModal('modalOrden')">Orden #1 🥐</div>
-      <div class="order-item" onclick="openModal('modalOrden')">Orden #2 🥐</div>
-      <div class="order-item" onclick="openModal('modalOrden')">Orden #3 🥐</div>
+    <div class="orders-scroll" id="ordersList">
+      <div class="order-item" id="order-1" onclick="abrirDetalleOrden('order-1', 'client-1', 'Orden #1')">Orden #1 🥐</div>
+      <div class="order-item" id="order-2" onclick="abrirDetalleOrden('order-2', 'client-2', 'Orden #2')">Orden #2 🥐</div>
+      <div class="order-item" id="order-3" onclick="abrirDetalleOrden('order-3', 'client-3', 'Orden #3')">Orden #3 🥐</div>
     </div>
     
-    <div class="clients-scroll">
-      <div class="client-avatar-container" onclick="openChat('Cliente 1', '👤', this)">
+    <div class="clients-scroll" id="clientsList">
+      <div class="client-avatar-container" id="client-1" onclick="openChat('Cliente 1', '👤', this)">
         <div class="client-avatar">👤</div>
         <span class="unread-badge">1</span>
       </div>
 
-      <div class="client-avatar-container" onclick="openChat('Cliente 2', '😎', this)">
+      <div class="client-avatar-container" id="client-2" onclick="openChat('Cliente 2', '😎', this)">
         <div class="client-avatar">😎</div>
         <span class="unread-badge">2</span>
       </div>
 
-      <div class="client-avatar-container" onclick="openChat('Cliente 3', '🤠', this)">
+      <div class="client-avatar-container" id="client-3" onclick="openChat('Cliente 3', '🤠', this)">
         <div class="client-avatar">🤠</div>
       </div>
 
-      <div class="client-avatar-container" onclick="openChat('Cliente 4', '🦊', this)">
+      <div class="client-avatar-container" id="client-4" onclick="openChat('Cliente 4', '🦊', this)">
         <div class="client-avatar">🦊</div>
-      </div>
-
-      <div class="client-avatar-container" onclick="openChat('Cliente 5', '👾', this)">
-        <div class="client-avatar">👾</div>
-      </div>
-
-      <div class="client-avatar-container" onclick="openChat('Cliente 6', '🤖', this)">
-        <div class="client-avatar">🤖</div>
       </div>
     </div>
   </div>
@@ -548,10 +550,6 @@
     <div class="pending-card" onclick="openModal('modalPendiente')">P-2 <span>15m</span></div>
     <div class="pending-card" onclick="openModal('modalPendiente')">P-3 <span>12m</span></div>
     <div class="pending-card" onclick="openModal('modalPendiente')">P-4 <span>08m</span></div>
-    <div class="pending-card" onclick="openModal('modalPendiente')">P-5 <span>05m</span></div>
-    <div class="pending-card" onclick="openModal('modalPendiente')">P-6 <span>03m</span></div>
-    <div class="pending-card" onclick="openModal('modalPendiente')">P-7 <span>02m</span></div>
-    <div class="pending-card" onclick="openModal('modalPendiente')">P-8 <span>01m</span></div>
   </div>
 
   <div id="map"></div>
@@ -574,10 +572,6 @@
           ¡Hola! ¿A qué hora llega mi pedido?
           <span class="msg-time">14:02</span>
         </div>
-        <div class="chat-msg admin">
-          ¡Hola! Va en camino, llega en 10 min 🛵
-          <span class="msg-time">14:05 ✓✓</span>
-        </div>
       </div>
 
       <div class="chat-bottom-grid">
@@ -592,6 +586,37 @@
         <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)">
         <button class="btn-send" onclick="enviarMensajeChat()">➤</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOrden">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
+      <div class="modal-title" id="ordenTitulo">Orden #1</div>
+
+      <div class="modal-header-grid">
+        <div class="client-info-box">
+          <div class="client-avatar-large">👤</div>
+          <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
+        </div>
+        <div class="comanda-box">
+          <h4>Comanda</h4>
+          <p>• 2x Nutella</p>
+          <p>• 1x Queso</p>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <label>Dirección de entrega</label>
+        <span>Av. Principal #123, Col. Centro</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Hora de entrega</label>
+        <span>02:30 PM</span>
+      </div>
+
+      <button class="btn-yellow-delivered" onclick="marcarOrdenEntregada()">Orden Entregada 🚚</button>
     </div>
   </div>
 
@@ -632,40 +657,6 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalOrden">
-    <div class="modal-card">
-      <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
-      <div class="modal-title">Orden #1</div>
-
-      <div class="modal-header-grid">
-        <div class="client-info-box">
-          <div class="client-avatar-large">👤</div>
-          <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
-        </div>
-        <div class="comanda-box">
-          <h4>Comanda</h4>
-          <p>• 2x Nutella</p>
-          <p>• 1x Queso</p>
-        </div>
-      </div>
-
-      <div class="detail-item">
-        <label>Dirección de entrega</label>
-        <span>Av. Principal #123, Col. Centro</span>
-      </div>
-
-      <div class="detail-item">
-        <label>Hora de entrega</label>
-        <span>02:30 PM</span>
-      </div>
-
-      <div class="detail-item">
-        <label>Especificaciones de entrega</label>
-        <span>Dejar en recepción / Llamar al llegar</span>
-      </div>
-    </div>
-  </div>
-
   <div class="modal-overlay" id="modalPendiente">
     <div class="modal-card">
       <button class="btn-close" onclick="closeModal('modalPendiente')">❌</button>
@@ -692,24 +683,20 @@
         <span style="color: #ffff00; font-weight: bold;">Juan Pérez Morales</span>
       </div>
 
-      <div class="detail-item">
-        <label>Estado</label>
-        <span style="color: #ff9800; font-weight: bold;">Esperando comprobante (15 min)</span>
-      </div>
-
       <button class="btn-main-green" onclick="confirmarPago()">Confirmar Pago</button>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // 1. Horario Toggle
+    let activeOrderId = null;
+    let activeClientId = null;
+
     function toggleSchedule() {
       const btn = document.getElementById('scheduleBtn');
       btn.classList.toggle('active');
     }
 
-    // 2. Modales
     function openModal(id) {
       document.getElementById('map').style.display = 'none';
       document.getElementById(id).style.display = 'flex';
@@ -724,23 +711,50 @@
       }
     }
 
-    // 3. Abrir Chat y remover notificación (Badge rojo)
+    // Abrir Modal de Orden Guardando Referencias
+    function abrirDetalleOrden(orderId, clientId, titulo) {
+      activeOrderId = orderId;
+      activeClientId = clientId;
+      document.getElementById('ordenTitulo').innerText = titulo;
+      openModal('modalOrden');
+    }
+
+    // Lógica para Botón "Orden Entregada"
+    function marcarOrdenEntregada() {
+      // 1. Eliminar la Orden
+      if (activeOrderId) {
+        const orderEl = document.getElementById(activeOrderId);
+        if (orderEl) orderEl.remove();
+      }
+
+      // 2. Eliminar el Chat / Perfil del cliente de la interfaz
+      if (activeClientId) {
+        const clientEl = document.getElementById(activeClientId);
+        if (clientEl) clientEl.remove();
+      }
+
+      alert('✅ ¡Orden marcada como ENTREGADA! Se eliminó la orden y el chat para mantener la interfaz limpia.');
+      closeModal('modalOrden');
+    }
+
+    // Abrir Chat y Mover al primer lugar
     function openChat(nombre, avatar, el) {
       document.getElementById('chatName').innerText = nombre;
       document.getElementById('chatAvatar').innerText = avatar;
 
-      // Si el elemento tiene un badge de notificación, lo elimina al abrir el chat
       if (el) {
+        // Quitar badge si existe
         const badge = el.querySelector('.unread-badge');
-        if (badge) {
-          badge.remove();
-        }
+        if (badge) badge.remove();
+
+        // Mover cliente al INICIO de la lista (Primer lugar)
+        const parent = document.getElementById('clientsList');
+        parent.prepend(el);
       }
 
       openModal('modalChat');
     }
 
-    // Funciones del Chat
     function enviarMensajeChat() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
@@ -765,9 +779,8 @@
       }
     }
 
-    // 4. Botón Cuernito Flotante
     function lanzarCuernoFlotante() {
-      alert('🥐 ¡Cuerno Flotante activado! Se ha desplegado en las pantallas de los usuarios en la Mini App.');
+      alert('🥐 ¡Cuerno Flotante activado!');
     }
 
     function registrarVenta() {
@@ -786,19 +799,11 @@
       btn.classList.add('selected');
     }
 
-    // 5. Inicializar Mapa
+    // Mapa
     const map = L.map('map').setView([19.6865, -99.1126], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
-    }).addTo(map);
-
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
     L.marker([19.6865, -99.1126]).addTo(map).bindPopup('Centro de Operaciones').openPopup();
-    L.circle([19.6865, -99.1126], {
-      color: '#ffff00',
-      fillColor: '#ffff00',
-      fillOpacity: 0.15,
-      radius: 2000
-    }).addTo(map);
+    L.circle([19.6865, -99.1126], { color: '#ffff00', fillColor: '#ffff00', fillOpacity: 0.15, radius: 2000 }).addTo(map);
   </script>
 </body>
 </html>
