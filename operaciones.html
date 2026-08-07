@@ -198,7 +198,7 @@
       transform: scale(0.96);
     }
 
-    /* Modales */
+    /* Modales Generales */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -408,28 +408,72 @@
       font-size: 1rem;
     }
 
-    /* Formulario Registrar Venta */
-    .form-group {
+    /* Estilos Modal Registrar Venta */
+    .sale-modal-header {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-family: Arial, sans-serif;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
     }
 
-    .form-group label {
-      font-size: 0.8rem;
-      color: #aaa;
-      text-transform: uppercase;
+    .btn-confirm {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
     }
 
-    .form-group input, .form-group select {
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-prefix-icon {
+      position: absolute;
+      left: 12px;
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+
+    .modal-input-styled {
+      width: 100%;
       background: #111;
       border: 1px solid #444;
       color: #fff;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 10px 10px 10px 38px;
+      border-radius: 8px;
       font-family: Arial, sans-serif;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .modal-input-styled:focus {
+      border-color: #00e676;
+    }
+
+    .toggle-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .btn-toggle {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      color: #888;
+      padding: 8px 4px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-toggle.selected {
+      background: #00e676;
+      color: #000;
+      border-color: #00e676;
+      font-weight: bold;
     }
 
     /* Elementos Flotantes Cuerno */
@@ -443,41 +487,37 @@
     }
 
     @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
-    }
-
-    /* Timer Style */
-    .timer-display {
-      font-size: 1.4rem;
-      color: #ff3d00;
-      text-align: center;
-      font-weight: bold;
-      font-family: monospace;
-      margin-top: 4px;
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-150px) scale(1.5);
+      }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <a href="admin.html" class="btn-back">⬅️</a>
+    <a href="#" class="btn-back">⬅️</a>
     <h1>Que!Cuerno$</h1>
   </header>
 
   <div class="schedule-box" id="scheduleBtn" onclick="toggleSchedule()">
-    ⏰ 01:00 - 12:00
+    ENTREGAS DESACTIVADAS
   </div>
 
   <div class="top-section">
     <div class="orders-scroll" id="ordersList">
       </div>
-    
     <div class="clients-scroll" id="clientsList">
       </div>
   </div>
 
   <div class="pending-container">
+    <div style="font-size:0.85rem; color:#888; margin-bottom:4px; font-family:Arial, sans-serif;">PAGOS PENDIENTES (30 MIN)</div>
     <div class="pending-grid" id="pendingGrid">
       </div>
   </div>
@@ -485,16 +525,42 @@
   <div id="map"></div>
 
   <footer>
-    <button class="btn-action" title="Impulso Cuerno" onclick="lanzarCuernoFlotante()">🥐</button>
-    <button class="btn-action" title="Registrar Venta" onclick="openModal('modalRegistroVenta')">✅</button>
+    <button class="btn-action" onclick="openModal('modalRegistroVenta')">✅</button>
+    <button class="btn-action" onclick="lanzarCuernoFlotante()">🥐</button>
   </footer>
+
+  <div class="modal-overlay" id="modalOrden">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
+
+      <div class="modal-header-grid">
+        <div class="client-info-box">
+          <div class="client-avatar-large" id="modalOrderAvatar">👤</div>
+          <span id="modalOrderUser" style="font-size: 0.85rem; color: #ffff00;">@usuario</span>
+        </div>
+        <div class="comanda-box">
+          <h4>Comanda:</h4>
+          <p id="modalOrderComanda" style="font-family: Arial, sans-serif;">• 1x Cuerno Salado<br>• 1x Refresco</p>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <label>Dirección de Entrega:</label>
+        <span id="modalOrderAddress">Calle Principal #123, Col. Centro</span>
+      </div>
+
+      <button class="btn-yellow-delivered" onclick="marcarEntregado()">¡ENTREGADO!</button>
+    </div>
+  </div>
 
   <div class="modal-overlay" id="modalChat">
     <div class="modal-card">
-      <button class="btn-close" style="position: static;" onclick="closeModal('modalChat')">❌</button>
+      <button class="btn-close" onclick="closeModal('modalChat')">❌</button>
+
       <div class="chat-header">
-        <div class="client-avatar" id="chatAvatar" style="width: 50px; height: 50px; font-size: 1.5rem;">👤</div>
-        <span id="chatName" style="font-size: 1.1rem; margin-top: 4px;">@cliente</span>
+        <div class="client-avatar-large" id="modalChatAvatar">👤</div>
+        <span id="modalChatName" style="color: #ffff00; font-size: 1.1rem; margin-top: 4px;">Nombre Cliente</span>
+        <span id="modalChatUser" style="font-size: 0.85rem; color: #888;">@usuario</span>
       </div>
 
       <div class="chat-body" id="chatBody">
@@ -502,360 +568,307 @@
 
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)">
-        <button class="btn-send" onclick="enviarMensajeChat()">➤</button>
+        <button class="btn-send" onclick="enviarMensaje()">➔</button>
       </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalOrden">
+  <div class="modal-overlay" id="modalPago">
     <div class="modal-card">
-      <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
-      <div class="modal-title" id="ordenTitulo">Orden #1</div>
-
-      <div class="modal-header-grid">
-        <div class="client-info-box">
-          <div class="client-avatar-large" id="ordenAvatar">👤</div>
-          <span style="font-size: 0.85rem; color: #fff;" id="ordenClienteUser">@cliente</span>
-        </div>
-        <div class="comanda-box">
-          <h4>Comanda</h4>
-          <p id="ordenComandaTexto">• 1x Jamón y Queso</p>
-        </div>
-      </div>
+      <button class="btn-close" onclick="closeModal('modalPago')">❌</button>
+      <div class="modal-title" style="color: #ff9800;">VALIDAR PAGO</div>
 
       <div class="detail-item">
-        <label>Dirección de entrega</label>
-        <span id="ordenDireccion">Av. Principal #123, Col. Centro</span>
+        <label>Cliente:</label>
+        <span id="pagoCliente">@usuario</span>
       </div>
-
       <div class="detail-item">
-        <label>Hora de entrega</label>
-        <span>02:30 PM</span>
+        <label>Monto / Comanda:</label>
+        <span id="pagoMonto">$150.00 - 2x Cuernos Especiales</span>
       </div>
-
-      <button class="btn-yellow-delivered" onclick="marcarOrdenEntregada()">Orden Entregada 🚚</button>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="modalPendiente">
-    <div class="modal-card">
-      <button class="btn-close" onclick="closeModal('modalPendiente')">❌</button>
-      <div class="modal-title">Pendiente Pago</div>
-
-      <div class="modal-header-grid">
-        <div class="client-info-box">
-          <div class="client-avatar-large" id="pendingAvatar">👤</div>
-          <span style="font-size: 0.85rem; color: #fff;" id="pendingUser">@usuario</span>
-        </div>
-        <div class="comanda-box">
-          <h4>Comanda</h4>
-          <p id="pendingComanda">• 1x Jamón y Queso</p>
-        </div>
-      </div>
-
       <div class="detail-item">
-        <label>Método de pago</label>
-        <span>SPEI Transferencia ($35.00)</span>
+        <label>Tiempo Restante:</label>
+        <span id="pagoTimer" style="color: #ff5252; font-weight: bold;">29:50 min</span>
       </div>
 
-      <div class="detail-item">
-        <label>Pago por parte de</label>
-        <span style="color: #ffff00; font-weight: bold;" id="pendingNombre">Juan Pérez Morales</span>
-        <div class="timer-display" id="pendingTimer">30:00</div>
-      </div>
-
-      <button class="btn-main-green" onclick="confirmarPagoActual()">Confirmar Pago</button>
+      <button class="btn-main-green" onclick="confirmarPagoSPEI()">CONFIRMAR SPEI ✅</button>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalRegistroVenta">
     <div class="modal-card">
-      <button class="btn-close" onclick="closeModal('modalRegistroVenta')">❌</button>
-      <div class="modal-title">Registrar Venta</div>
-
-      <div class="form-group">
-        <label>Cliente / Referencia</label>
-        <input type="text" id="ventaCliente" placeholder="Ej: @mostrador o Juan">
+      <div class="sale-modal-header">
+        <button class="btn-close" style="position: static;" onclick="closeModal('modalRegistroVenta')">❌</button>
+        <div class="modal-title" style="margin: 0; font-size: 1.5rem;">Registrar Venta</div>
+        <button class="btn-confirm" onclick="registrarVenta()">✅</button>
       </div>
 
-      <div class="form-group">
-        <label>Producto / Comanda</label>
-        <select id="ventaProducto">
-          <option value="• 1x Jamón y Queso">1x Jamón y Queso ($35.00)</option>
-          <option value="• 1x Nutella Especial">1x Nutella Especial ($40.00)</option>
-          <option value="• 1x Queso y Tocino">1x Queso y Tocino ($45.00)</option>
-          <option value="• Combo Cuerno + Bebida">Combo Cuerno + Bebida ($65.00)</option>
-        </select>
+      <div class="input-with-icon">
+        <span class="input-prefix-icon">🥐</span>
+        <input type="number" class="modal-input-styled" value="1" id="ventaCant" min="1">
       </div>
 
-      <div class="form-group">
-        <label>Método de Pago</label>
-        <select id="ventaMetodo">
-          <option value="Efectivo">Efectivo (Mostrador)</option>
-          <option value="Transferencia / SPEI">Transferencia / SPEI</option>
-          <option value="Tarjeta">Tarjeta de Débito/Crédito</option>
-        </select>
+      <div class="toggle-group" id="groupCategoria">
+        <button class="btn-toggle selected" onclick="selectOption(this, 'groupCategoria')">Salado</button>
+        <button class="btn-toggle" onclick="selectOption(this, 'groupCategoria')">Dulce</button>
+        <button class="btn-toggle" onclick="selectOption(this, 'groupCategoria')">Especial</button>
       </div>
 
-      <button class="btn-main-green" onclick="guardarVentaDirecta()">Guardar e Iniciar Orden</button>
+      <div class="input-with-icon">
+        <span class="input-prefix-icon" style="color: #00e676; font-weight: bold;">$</span>
+        <input type="number" class="modal-input-styled" value="35" id="ventaPrecio">
+      </div>
+
+      <div class="toggle-group" id="groupMetodo">
+        <button class="btn-toggle selected" onclick="selectOption(this, 'groupMetodo')">💵 Efec.</button>
+        <button class="btn-toggle" onclick="selectOption(this, 'groupMetodo')">💳 Tarj.</button>
+        <button class="btn-toggle" onclick="selectOption(this, 'groupMetodo')">🅰️ App</button>
+      </div>
+
+      <div class="input-with-icon">
+        <span class="input-prefix-icon">🔍</span>
+        <input type="text" class="modal-input-styled" placeholder="Nº, Nombre o @usuario" id="ventaCliente">
+      </div>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <script>
-    // Base de Datos en memoria
-    let pendingPayments = [
-      { id: 'p1', code: 'P-1', user: '@juan_p', name: 'Juan Pérez Morales', avatar: '👤', comanda: '• 1x Jamón y Queso', address: 'Calle Rosales #45', secondsLeft: 1800 },
-      { id: 'p2', code: 'P-2', user: '@maria_g', name: 'María Gómez', avatar: '👩', comanda: '• 2x Nutella Especial', address: 'Av. Hidalgo #12', secondsLeft: 1800 },
-      { id: 'p3', code: 'P-3', user: '@carlos_m', name: 'Carlos Mendoza', avatar: '🧔', comanda: '• 1x Queso y Tocino', address: 'Col. San Jose #89', secondsLeft: 1800 },
-      { id: 'p4', code: 'P-4', user: '@laura_s', name: 'Laura Silva', avatar: '👩‍🦰', comanda: '• 3x Jamón y Queso', address: 'Av. Juarez #102', secondsLeft: 1800 }
+    // --- ESTADO Y DATOS DE PRUEBA ---
+    let isScheduleActive = false;
+    let selectedOrderId = null;
+    let selectedClientId = null;
+    let selectedPendingId = null;
+
+    let activeOrders = [
+      { id: 'ord-1', title: 'Orden #1', user: '@carlos_m', avatar: '👨', comanda: '• 2x Cuerno Salado\n• 1x Refresco', address: 'Av. Las Palmas #45', clientId: 'cli-1' },
+      { id: 'ord-2', title: 'Orden #2', user: '@ana_g', avatar: '👩', comanda: '• 1x Cuerno Dulce', address: 'Calle Sauces #12', clientId: 'cli-2' }
     ];
 
-    let activeOrders = [];
-    let activeClients = [];
-    let selectedPendingId = null;
-    let currentActiveOrderId = null;
-    let currentChatClientId = null;
+    let activeClients = [
+      { id: 'cli-1', name: 'Carlos M.', user: '@carlos_m', avatar: '👨', orderId: 'ord-1', chatHistory: [{ sender: 'client', text: '¡Hola! ¿Cuánto tarda mi pedido?', time: '14:20' }] },
+      { id: 'cli-2', name: 'Ana G.', user: '@ana_g', avatar: '👩', orderId: 'ord-2', chatHistory: [{ sender: 'client', text: '¿Tienen salsa extra?', time: '14:25' }] }
+    ];
 
-    function init() {
-      renderPendingGrid();
-      startGlobalTimer();
-    }
+    let pendingPayments = [
+      { id: 'pago-1', user: '@luis_p', monto: '$120.00', comanda: '• 2x Cuerno Especial', timer: '28:15' },
+      { id: 'pago-2', user: '@marta_r', monto: '$85.00', comanda: '• 1x Cuerno Dulce + Café', timer: '19:40' }
+    ];
 
+    // --- HORARIO DE ENTREGA ---
     function toggleSchedule() {
-      document.getElementById('scheduleBtn').classList.toggle('active');
+      isScheduleActive = !isScheduleActive;
+      const btn = document.getElementById('scheduleBtn');
+      if (isScheduleActive) {
+        btn.classList.add('active');
+        btn.innerText = 'ENTREGAS ACTIVAS';
+      } else {
+        btn.classList.remove('active');
+        btn.innerText = 'ENTREGAS DESACTIVADAS';
+      }
     }
 
-    function openModal(id) {
-      document.getElementById('map').style.display = 'none';
-      document.getElementById(id).style.display = 'flex';
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-      const mapContainer = document.getElementById('map');
-      mapContainer.style.display = 'block';
-      if (typeof map !== 'undefined') map.invalidateSize();
-    }
-
-    // Renderizar tarjetas de pagos pendientes
-    function renderPendingGrid() {
-      const grid = document.getElementById('pendingGrid');
-      grid.innerHTML = '';
-      pendingPayments.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'pending-card';
-        card.innerText = p.code;
-        card.onclick = () => abrirModalPendiente(p.id);
-        grid.appendChild(card);
-      });
-    }
-
-    function abrirModalPendiente(id) {
-      selectedPendingId = id;
-      const item = pendingPayments.find(p => p.id === id);
-      if (!item) return;
-
-      document.getElementById('pendingAvatar').innerText = item.avatar;
-      document.getElementById('pendingUser').innerText = item.user;
-      document.getElementById('pendingComanda').innerText = item.comanda;
-      document.getElementById('pendingNombre').innerText = item.name;
-
-      updateTimerDisplay(item.secondsLeft);
-      openModal('modalPendiente');
-    }
-
-    // Timer de 30 minutos por pedido pendiente
-    function startGlobalTimer() {
-      setInterval(() => {
-        pendingPayments.forEach((p, index) => {
-          p.secondsLeft--;
-          if (p.secondsLeft <= 0) {
-            pendingPayments.splice(index, 1);
-            renderPendingGrid();
-            if (selectedPendingId === p.id) closeModal('modalPendiente');
-          }
-        });
-
-        if (selectedPendingId) {
-          const item = pendingPayments.find(p => p.id === selectedPendingId);
-          if (item) updateTimerDisplay(item.secondsLeft);
-        }
-      }, 1000);
-    }
-
-    function updateTimerDisplay(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      document.getElementById('pendingTimer').innerText = 
-        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    // Al confirmar pago: crea la orden exacta, abre el chat y sincroniza
-    function confirmarPagoActual() {
-      const itemIndex = pendingPayments.findIndex(p => p.id === selectedPendingId);
-      if (itemIndex === -1) return;
-
-      const item = pendingPayments[itemIndex];
-      const orderNum = activeOrders.length + 1;
-      const orderId = `ord-${Date.now()}`;
-      const clientId = `cli-${Date.now()}`;
-
-      const initialChat = [
-        { sender: 'client', text: `¡Hola! Acabo de transferir mi pedido (${item.comanda}).`, time: getHoraActual() }
-      ];
-
-      const newOrder = {
-        id: orderId,
-        title: `Orden #${orderNum}`,
-        user: item.user,
-        avatar: item.avatar,
-        comanda: item.comanda,
-        address: item.address,
-        clientId: clientId
-      };
-
-      const newClient = {
-        id: clientId,
-        name: item.name,
-        user: item.user,
-        avatar: item.avatar,
-        orderId: orderId,
-        chatHistory: initialChat
-      };
-
-      activeOrders.push(newOrder);
-      activeClients.unshift(newClient);
-
-      pendingPayments.splice(itemIndex, 1);
-
-      renderPendingGrid();
-      renderOrdersAndClients();
-      closeModal('modalPendiente');
-    }
-
+    // --- RENDERIZADO DE INTERFAZ ---
     function renderOrdersAndClients() {
-      const ordersList = document.getElementById('ordersList');
-      const clientsList = document.getElementById('clientsList');
-
-      ordersList.innerHTML = '';
-      clientsList.innerHTML = '';
-
-      activeOrders.forEach(o => {
+      // 1. Renderizar Órdenes
+      const ordersContainer = document.getElementById('ordersList');
+      ordersContainer.innerHTML = '';
+      activeOrders.forEach(order => {
         const item = document.createElement('div');
         item.className = 'order-item';
-        item.innerHTML = `${o.title} 🥐`;
-        item.onclick = () => abrirOrdenYChat(o.id);
-        ordersList.appendChild(item);
+        item.innerHTML = `<span>${order.title}</span><span style="color:#aaa; font-size:0.8rem;">${order.user}</span>`;
+        item.onclick = () => openOrderModal(order.id);
+        ordersContainer.appendChild(item);
       });
 
-      activeClients.forEach(c => {
-        const container = document.createElement('div');
-        container.className = 'client-avatar-container';
-        container.id = c.id;
-        container.onclick = () => abrirChatPorClienteId(c.id);
-        container.innerHTML = `<div class="client-avatar">${c.avatar}</div>`;
-        clientsList.appendChild(container);
+      // 2. Renderizar Clientes
+      const clientsContainer = document.getElementById('clientsList');
+      clientsContainer.innerHTML = '';
+      activeClients.forEach(client => {
+        const avatarContainer = document.createElement('div');
+        avatarContainer.className = 'client-avatar-container';
+        avatarContainer.innerHTML = `<div class="client-avatar">${client.avatar}</div>`;
+        avatarContainer.onclick = () => openChatModal(client.id);
+        clientsContainer.appendChild(avatarContainer);
+      });
+
+      // 3. Renderizar Pagos Pendientes
+      const pendingGrid = document.getElementById('pendingGrid');
+      pendingGrid.innerHTML = '';
+      pendingPayments.forEach(pago => {
+        const card = document.createElement('div');
+        card.className = 'pending-card';
+        card.innerHTML = `<div>${pago.user}</div><div style="font-size:0.75rem; color:#ff5252;">⏱ ${pago.timer}</div>`;
+        card.onclick = () => openPagoModal(pago.id);
+        pendingGrid.appendChild(card);
       });
     }
 
-    // Abre la orden y su respectivo chat individual
-    function abrirOrdenYChat(orderId) {
-      currentActiveOrderId = orderId;
+    // --- MANEJO DE MODALES ---
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Modal de Órdenes
+    function openOrderModal(orderId) {
       const order = activeOrders.find(o => o.id === orderId);
       if (!order) return;
+      selectedOrderId = orderId;
 
-      document.getElementById('ordenTitulo').innerText = order.title;
-      document.getElementById('ordenAvatar').innerText = order.avatar;
-      document.getElementById('ordenClienteUser').innerText = order.user;
-      document.getElementById('ordenComandaTexto').innerText = order.comanda;
-      document.getElementById('ordenDireccion').innerText = order.address;
+      document.getElementById('modalOrderAvatar').innerText = order.avatar;
+      document.getElementById('modalOrderUser').innerText = order.user;
+      document.getElementById('modalOrderComanda').innerText = order.comanda;
+      document.getElementById('modalOrderAddress').innerText = order.address;
 
       openModal('modalOrden');
-      abrirChatPorClienteId(order.clientId);
     }
 
-    function abrirChatPorClienteId(clientId) {
+    function marcarEntregado() {
+      if (selectedOrderId) {
+        activeOrders = activeOrders.filter(o => o.id !== selectedOrderId);
+        renderOrdersAndClients();
+        closeModal('modalOrden');
+      }
+    }
+
+    // Modal de Chat
+    function openChatModal(clientId) {
       const client = activeClients.find(c => c.id === clientId);
       if (!client) return;
+      selectedClientId = clientId;
 
-      currentChatClientId = clientId;
-      document.getElementById('chatName').innerText = client.user;
-      document.getElementById('chatAvatar').innerText = client.avatar;
+      document.getElementById('modalChatAvatar').innerText = client.avatar;
+      document.getElementById('modalChatName').innerText = client.name;
+      document.getElementById('modalChatUser').innerText = client.user;
 
-      renderChatBody(client.chatHistory);
+      renderChatMessages();
       openModal('modalChat');
     }
 
-    function renderChatBody(chatHistory) {
+    function renderChatMessages() {
+      const client = activeClients.find(c => c.id === selectedClientId);
       const chatBody = document.getElementById('chatBody');
       chatBody.innerHTML = '';
 
-      if (!chatHistory || chatHistory.length === 0) {
-        chatBody.innerHTML = '<div style="text-align:center; color:#666; font-size:0.8rem; margin-top:20px;">Sin mensajes aún</div>';
-        return;
+      if (client && client.chatHistory) {
+        client.chatHistory.forEach(msg => {
+          const msgDiv = document.createElement('div');
+          msgDiv.className = `chat-msg ${msg.sender}`;
+          msgDiv.innerHTML = `${msg.text} <span class="msg-time">${msg.time}</span>`;
+          chatBody.appendChild(msgDiv);
+        });
+        chatBody.scrollTop = chatBody.scrollHeight;
       }
-
-      chatHistory.forEach(msg => {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `chat-msg ${msg.sender}`;
-        msgDiv.innerHTML = `${msg.text} <span class="msg-time">${msg.time}${msg.sender === 'admin' ? ' ✓' : ''}</span>`;
-        chatBody.appendChild(msgDiv);
-      });
-
-      chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    function enviarMensajeChat() {
+    function enviarMensaje() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
-      if (!text || !currentChatClientId) return;
+      if (!text || !selectedClientId) return;
 
-      const client = activeClients.find(c => c.id === currentChatClientId);
+      const client = activeClients.find(c => c.id === selectedClientId);
       if (client) {
         client.chatHistory.push({
           sender: 'admin',
           text: text,
           time: getHoraActual()
         });
-        renderChatBody(client.chatHistory);
         input.value = '';
+        renderChatMessages();
       }
     }
 
     function handleKeyPress(e) {
-      if (e.key === 'Enter') enviarMensajeChat();
+      if (e.key === 'Enter') enviarMensaje();
     }
 
-    function marcarOrdenEntregada() {
-      if (currentActiveOrderId) {
-        const order = activeOrders.find(o => o.id === currentActiveOrderId);
-        if (order) {
-          activeOrders = activeOrders.filter(o => o.id !== currentActiveOrderId);
-          activeClients = activeClients.filter(c => c.id !== order.clientId);
+    // Modal de Pagos SPEI
+    function openPagoModal(pagoId) {
+      const pago = pendingPayments.find(p => p.id === pagoId);
+      if (!pago) return;
+      selectedPendingId = pagoId;
+
+      document.getElementById('pagoCliente').innerText = pago.user;
+      document.getElementById('pagoMonto').innerText = `${pago.monto} - ${pago.comanda}`;
+      document.getElementById('pagoTimer').innerText = `${pago.timer} min`;
+
+      openModal('modalPago');
+    }
+
+    function confirmarPagoSPEI() {
+      if (selectedPendingId) {
+        const pago = pendingPayments.find(p => p.id === selectedPendingId);
+        if (pago) {
+          const orderNum = activeOrders.length + 1;
+          const newOrderId = `ord-${Date.now()}`;
+          const newClientId = `cli-${Date.now()}`;
+
+          activeOrders.push({
+            id: newOrderId,
+            title: `Orden #${orderNum}`,
+            user: pago.user,
+            avatar: '💳',
+            comanda: pago.comanda,
+            address: 'Pago SPEI Confirmado',
+            clientId: newClientId
+          });
+
+          activeClients.unshift({
+            id: newClientId,
+            name: pago.user,
+            user: pago.user,
+            avatar: '💳',
+            orderId: newOrderId,
+            chatHistory: [{ sender: 'client', text: 'Pago por SPEI verificado con éxito.', time: getHoraActual() }]
+          });
+
+          pendingPayments = pendingPayments.filter(p => p.id !== selectedPendingId);
         }
+
+        renderOrdersAndClients();
+        closeModal('modalPago');
       }
-      renderOrdersAndClients();
-      closeModal('modalOrden');
-      closeModal('modalChat');
     }
 
-    // Registrar Venta Manual (Boton ✅)
-    function guardarVentaDirecta() {
+    // --- REGISTRAR VENTA ---
+    function selectOption(button, groupId) {
+      const parent = document.getElementById(groupId);
+      if (!parent) return;
+      const buttons = parent.querySelectorAll('.btn-toggle');
+      buttons.forEach(btn => btn.classList.remove('selected'));
+      button.classList.add('selected');
+    }
+
+    function registrarVenta() {
+      const cant = document.getElementById('ventaCant').value || 1;
+      const precio = document.getElementById('ventaPrecio').value || 0;
       const clienteInput = document.getElementById('ventaCliente').value.trim() || '@mostrador';
-      const productoSel = document.getElementById('ventaProducto').value;
-      const metodoSel = document.getElementById('ventaMetodo').value;
+
+      // Obtener categoría seleccionada
+      const catBtn = document.querySelector('#groupCategoria .btn-toggle.selected');
+      const categoria = catBtn ? catBtn.innerText : 'Salado';
+
+      // Obtener método de pago seleccionado
+      const metBtn = document.querySelector('#groupMetodo .btn-toggle.selected');
+      const metodoSel = metBtn ? metBtn.innerText : '💵 Efec.';
 
       const orderNum = activeOrders.length + 1;
       const orderId = `ord-${Date.now()}`;
       const clientId = `cli-${Date.now()}`;
+
+      const comandaTexto = `• ${cant}x Cuerno ${categoria} ($${precio * cant})`;
 
       const newOrder = {
         id: orderId,
         title: `Orden #${orderNum}`,
         user: clienteInput,
         avatar: '🛍️',
-        comanda: productoSel,
+        comanda: comandaTexto,
         address: `Venta Directa (${metodoSel})`,
         clientId: clientId
       };
@@ -880,7 +893,7 @@
       document.getElementById('ventaCliente').value = '';
     }
 
-    // Efecto interactivo al presionar el botón 🥐
+    // --- EFECTO VISUAL DE CUERNO FLOTANTE ---
     function lanzarCuernoFlotante() {
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
@@ -901,12 +914,19 @@
       return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
     }
 
-    // Inicializar Mapa
+    // --- INICIALIZAR MAPA LEAFLET ---
     const map = L.map('map').setView([19.6865, -99.1126], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-    L.marker([19.6865, -99.1126]).addTo(map).bindPopup('Centro de Operaciones').openPopup();
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-    init();
+    // Marcador del Centro de Operaciones
+    L.marker([19.6865, -99.1126]).addTo(map)
+      .bindPopup('<b>Centro de Operaciones</b><br>Que!Cuerno$')
+      .openPopup();
+
+    // Inicializar listas al cargar la página
+    renderOrdersAndClients();
   </script>
 </body>
 </html>
