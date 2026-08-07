@@ -290,6 +290,85 @@
   font-weight: bold;
   margin-top: 6px;
 }
+
+/* Modal Registrar Venta */
+.sale-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.sale-modal-header .btn-close,
+.sale-modal-header .btn-confirm {
+  position: static; /* Quitamos posicion fija anterior */
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sale-modal-header .btn-close {
+  color: #ff0000;
+}
+
+.sale-modal-header .btn-confirm {
+  color: #00e676;
+}
+
+/* Campos de entrada */
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-field label {
+  font-size: 0.95rem;
+  color: #cccccc;
+}
+
+.modal-input-styled {
+  background: #111111;
+  border: 1px solid #444444;
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  width: 100%;
+  outline: none;
+}
+
+.modal-input-styled:focus {
+  border-color: #00e676;
+}
+
+/* Grupo de botones interactivos (Tipo y Método de pago) */
+.toggle-group {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-toggle {
+  flex: 1;
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+/* Estado SELECCIONADO (Verde) */
+.btn-toggle.selected {
+  background: #00e676;
+  color: #000000;
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
+}
   </style>
 </head>
 <body>
@@ -344,35 +423,56 @@
   <!-- ================= VENTANAS FLOTANTES ================= -->
 
   <!-- Modal 1: Registrar Venta (Palomita Verde) -->
-  <div class="modal-overlay" id="modalRegistroVenta">
-    <div class="modal-card">
+  <!-- Modal 3: Registrar Venta (Palomita Verde) -->
+<div class="modal-overlay" id="modalRegistroVenta">
+  <div class="modal-card">
+    
+    <!-- Cabecera con Tache Rojo y Paloma Verde -->
+    <div class="sale-modal-header">
       <button class="btn-close" onclick="closeModal('modalRegistroVenta')">❌</button>
-      <button class="btn-confirm-top" onclick="registrarVenta()">✅</button>
-      <div class="modal-title">Registrar Venta</div>
-
-      <label>Cantidad 🥐</label>
-      <input type="number" class="modal-input" value="1" id="ventaCant">
-
-      <label>Tipo</label>
-      <div class="select-group">
-        <button class="btn-select active" onclick="selectType(this)">Sencillo</button>
-        <button class="btn-select" onclick="selectType(this)">Relleno</button>
-      </div>
-
-      <label>Precio $</label>
-      <input type="number" class="modal-input" value="35" id="ventaPrecio">
-
-      <label>Método de Pago</label>
-      <div class="select-group">
-        <button class="btn-select active" onclick="selectPay(this)">💵</button>
-        <button class="btn-select" onclick="selectPay(this)">💳</button>
-        <button class="btn-select" onclick="selectPay(this)">🅰️</button>
-      </div>
-
-      <label>Cliente</label>
-      <input type="text" class="modal-input" placeholder="Nombre / Telegram @">
+      <div class="modal-title" style="margin: 0; font-size: 1.5rem;">Registrar Venta</div>
+      <button class="btn-confirm" onclick="registrarVenta()">✅</button>
     </div>
+
+    <!-- Cantidad -->
+    <div class="modal-field">
+      <label>Cantidad 🥐</label>
+      <input type="number" class="modal-input-styled" value="1" id="ventaCant" min="1">
+    </div>
+
+    <!-- Tipo -->
+    <div class="modal-field">
+      <label>Tipo</label>
+      <div class="toggle-group">
+        <button class="btn-toggle selected" onclick="selectOption(this)">Sencillo</button>
+        <button class="btn-toggle" onclick="selectOption(this)">Relleno</button>
+      </div>
+    </div>
+
+    <!-- Precio -->
+    <div class="modal-field">
+      <label>Precio $</label>
+      <input type="number" class="modal-input-styled" value="35" id="ventaPrecio">
+    </div>
+
+    <!-- Método de pago -->
+    <div class="modal-field">
+      <label>Método de Pago</label>
+      <div class="toggle-group">
+        <button class="btn-toggle selected" onclick="selectOption(this)">💵 Efec.</button>
+        <button class="btn-toggle" onclick="selectOption(this)">💳 Tarj.</button>
+        <button class="btn-toggle" onclick="selectOption(this)">🅰️ App</button>
+      </div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="modal-field">
+      <label>Cliente</label>
+      <input type="text" class="modal-input-styled" placeholder="Nombre / Telegram @" id="ventaCliente">
+    </div>
+
   </div>
+</div>
 
   <!-- Modal: Detalle de Órdenes -->
 <div class="modal-overlay" id="modalOrden">
@@ -488,6 +588,15 @@ function closeModal(id) {
 function confirmarPago() {
   alert('¡Pago confirmado!');
   closeModal('modalPendiente'); // Esto ya volverá a mostrar el mapa
+}
+
+function selectOption(btn) {
+  // Quita la clase 'selected' de todos los botones en el mismo grupo
+  const group = btn.parentElement.querySelectorAll('.btn-toggle');
+  group.forEach(b => b.classList.remove('selected'));
+  
+  // Activa el botón presionado
+  btn.classList.add('selected');
 }
 
     // 3. Inicializar Mapa (Ubicación por defecto con Radio de 2km)
