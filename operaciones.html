@@ -94,40 +94,18 @@
       border-left: 3px solid #ffff00;
     }
 
-    /* Contenedor de Clientes con Flechas */
-    .clients-wrapper {
+    /* Contenedor de Clientes con Scroll Vertical */
+    .clients-scroll {
       border: 1px solid #444;
       border-radius: 8px;
-      background: #0a0a0a;
-      display: flex;
-      align-items: center;
-      padding: 4px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .scroll-arrow {
-      background: rgba(0,0,0,0.7);
-      color: #ffff00;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      padding: 4px;
-      z-index: 2;
-    }
-
-    .clients-scroll {
-      display: flex;
+      padding: 8px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
-      align-items: center;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      width: 100%;
-      padding: 4px 0;
-    }
-
-    .clients-scroll::-webkit-scrollbar {
-      display: none;
+      align-content: start;
+      justify-items: center;
+      background: #0a0a0a;
     }
 
     .client-avatar {
@@ -176,7 +154,7 @@
       z-index: 1;
     }
 
-    /* 5. Footer solo con Emojis */
+    /* 5. Footer con solo Emojis */
     footer {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -240,6 +218,84 @@
       text-align: center;
       font-size: 1.6rem;
       letter-spacing: 1px;
+    }
+
+    /* Cabecera interna: Cliente (Izquierda) + Comanda (Derecha) */
+    .modal-header-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 12px;
+    }
+
+    .client-info-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .client-avatar-large {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid #ffff00;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .comanda-box {
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 8px;
+      background: #111;
+      font-size: 0.9rem;
+    }
+
+    .comanda-box h4 {
+      color: #ffff00;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    /* Lista de detalles dentro de Modales */
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #222;
+      padding-bottom: 6px;
+      font-family: Arial, sans-serif;
+    }
+
+    .detail-item label {
+      color: #888;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .detail-item span {
+      color: #fff;
+    }
+
+    /* Botón Verde Principal */
+    .btn-main-green {
+      background: #00e676;
+      color: #000000;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 6px;
     }
 
     /* Modal Registrar Venta */
@@ -426,15 +482,14 @@
       <div class="order-item" onclick="openModal('modalOrden')">Orden #2 🥐</div>
       <div class="order-item" onclick="openModal('modalOrden')">Orden #3 🥐</div>
     </div>
-    <div class="clients-wrapper">
-      <button class="scroll-arrow" onclick="scrollClients(-50)">◀</button>
-      <div class="clients-scroll" id="clientsScroll">
-        <div class="client-avatar" onclick="openChat('Cliente 1', '👤')">👤</div>
-        <div class="client-avatar" onclick="openChat('Cliente 2', '😎')">😎</div>
-        <div class="client-avatar" onclick="openChat('Cliente 3', '🤠')">🤠</div>
-        <div class="client-avatar" onclick="openChat('Cliente 4', '🦊')">🦊</div>
-      </div>
-      <button class="scroll-arrow" onclick="scrollClients(50)">▶</button>
+    
+    <div class="clients-scroll">
+      <div class="client-avatar" onclick="openChat('Cliente 1', '👤')">👤</div>
+      <div class="client-avatar" onclick="openChat('Cliente 2', '😎')">😎</div>
+      <div class="client-avatar" onclick="openChat('Cliente 3', '🤠')">🤠</div>
+      <div class="client-avatar" onclick="openChat('Cliente 4', '🦊')">🦊</div>
+      <div class="client-avatar" onclick="openChat('Cliente 5', '👾')">👾</div>
+      <div class="client-avatar" onclick="openChat('Cliente 6', '🤖')">🤖</div>
     </div>
   </div>
 
@@ -531,16 +586,32 @@
     <div class="modal-card">
       <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
       <div class="modal-title">Orden #1</div>
-      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px;">
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
-          <div style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffff00; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">👤</div>
+
+      <div class="modal-header-grid">
+        <div class="client-info-box">
+          <div class="client-avatar-large">👤</div>
           <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
         </div>
-        <div style="border: 1px solid #444; border-radius: 8px; padding: 8px; background: #111; font-size: 0.9rem;">
-          <h4 style="color: #ffff00; margin-bottom: 4px;">Comanda</h4>
+        <div class="comanda-box">
+          <h4>Comanda</h4>
           <p>• 2x Nutella</p>
           <p>• 1x Queso</p>
         </div>
+      </div>
+
+      <div class="detail-item">
+        <label>Dirección de entrega</label>
+        <span>Av. Principal #123, Col. Centro</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Hora de entrega</label>
+        <span>02:30 PM</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Especificaciones de entrega</label>
+        <span>Dejar en recepción / Llamar al llegar</span>
       </div>
     </div>
   </div>
@@ -549,7 +620,29 @@
     <div class="modal-card">
       <button class="btn-close" onclick="closeModal('modalPendiente')">❌</button>
       <div class="modal-title">Pendiente Pago</div>
-      <button style="background: #00e676; color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1.3rem; cursor: pointer; font-weight: bold; margin-top: 6px;" onclick="confirmarPago()">Confirmar Pago</button>
+
+      <div class="modal-header-grid">
+        <div class="client-info-box">
+          <div class="client-avatar-large">👤</div>
+          <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
+        </div>
+        <div class="comanda-box">
+          <h4>Comanda</h4>
+          <p>• 1x Jamón y Queso</p>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <label>Método de pago</label>
+        <span>SPEI Transferencia ($35.00)</span>
+      </div>
+
+      <div class="detail-item">
+        <label>Estado</label>
+        <span style="color: #ff9800; font-weight: bold;">Esperando comprobante (15 min)</span>
+      </div>
+
+      <button class="btn-main-green" onclick="confirmarPago()">Confirmar Pago</button>
     </div>
   </div>
 
@@ -576,12 +669,7 @@
       }
     }
 
-    // 3. Scroll de Clientes
-    function scrollClients(val) {
-      document.getElementById('clientsScroll').scrollBy({ left: val, behavior: 'smooth' });
-    }
-
-    // 4. Chat
+    // 3. Chat
     function openChat(nombre, avatar) {
       document.getElementById('chatName').innerText = nombre;
       document.getElementById('chatAvatar').innerText = avatar;
@@ -606,7 +694,7 @@
       }
     }
 
-    // 5. Botón Cuernito Flotante (Evento Dinámico)
+    // 4. Botón Cuernito Flotante
     function lanzarCuernoFlotante() {
       alert('🥐 ¡Cuerno Flotante activado! Se ha desplegado en las pantallas de los usuarios en la Mini App.');
     }
@@ -627,7 +715,7 @@
       btn.classList.add('selected');
     }
 
-    // 6. Inicializar Mapa
+    // 5. Inicializar Mapa
     const map = L.map('map').setView([19.6865, -99.1126], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19
