@@ -21,6 +21,8 @@
       flex-direction: column;
       gap: 12px;
       min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
     }
 
     /* Header */
@@ -131,25 +133,7 @@
       cursor: pointer;
     }
 
-    .unread-badge {
-      position: absolute;
-      top: -2px;
-      right: -2px;
-      background-color: #ff0000;
-      color: #ffffff;
-      font-size: 0.75rem;
-      font-family: Arial, sans-serif;
-      font-weight: bold;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #000;
-    }
-
-    /* Grid/Contenedor de Órdenes Pendientes de Pago (Con scroll de alto fijo) */
+    /* Grid/Contenedor de Órdenes Pendientes de Pago */
     .pending-container {
       border: 1px solid #444;
       border-radius: 8px;
@@ -208,6 +192,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    .btn-action:active {
+      transform: scale(0.96);
     }
 
     /* Modales */
@@ -376,6 +364,7 @@
     .chat-msg.client {
       background: #222;
       align-self: flex-start;
+      color: #fff;
     }
 
     .chat-msg.admin {
@@ -390,23 +379,6 @@
       float: right;
       margin-left: 8px;
       margin-top: 4px;
-    }
-
-    .chat-bottom-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .chat-btn-small {
-      flex: 1;
-      background: #1f1f1f;
-      border: 1px solid #444;
-      color: #fff;
-      padding: 6px;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      cursor: pointer;
     }
 
     .chat-input-row {
@@ -434,6 +406,45 @@
       cursor: pointer;
       font-weight: bold;
       font-size: 1rem;
+    }
+
+    /* Formulario Registrar Venta */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: Arial, sans-serif;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+
+    .form-group input, .form-group select {
+      background: #111;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 8px;
+      border-radius: 6px;
+      font-family: Arial, sans-serif;
+      font-size: 0.95rem;
+    }
+
+    /* Elementos Flotantes Cuerno */
+    .floating-croissant {
+      position: fixed;
+      font-size: 2.5rem;
+      user-select: none;
+      pointer-events: none;
+      z-index: 20000;
+      animation: floatUp 1.5s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(-120px) scale(1.5); }
     }
 
     /* Timer Style */
@@ -474,8 +485,8 @@
   <div id="map"></div>
 
   <footer>
-    <button class="btn-action" onclick="lanzarCuernoFlotante()">🥐</button>
-    <button class="btn-action" onclick="openModal('modalRegistroVenta')">✅</button>
+    <button class="btn-action" title="Impulso Cuerno" onclick="lanzarCuernoFlotante()">🥐</button>
+    <button class="btn-action" title="Registrar Venta" onclick="openModal('modalRegistroVenta')">✅</button>
   </footer>
 
   <div class="modal-overlay" id="modalChat">
@@ -487,11 +498,7 @@
       </div>
 
       <div class="chat-body" id="chatBody">
-        <div class="chat-msg client">
-          ¡Hola! Acabo de transferir mi pedido.
-          <span class="msg-time">14:02</span>
         </div>
-      </div>
 
       <div class="chat-input-row">
         <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)">
@@ -561,6 +568,39 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="modalRegistroVenta">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalRegistroVenta')">❌</button>
+      <div class="modal-title">Registrar Venta</div>
+
+      <div class="form-group">
+        <label>Cliente / Referencia</label>
+        <input type="text" id="ventaCliente" placeholder="Ej: @mostrador o Juan">
+      </div>
+
+      <div class="form-group">
+        <label>Producto / Comanda</label>
+        <select id="ventaProducto">
+          <option value="• 1x Jamón y Queso">1x Jamón y Queso ($35.00)</option>
+          <option value="• 1x Nutella Especial">1x Nutella Especial ($40.00)</option>
+          <option value="• 1x Queso y Tocino">1x Queso y Tocino ($45.00)</option>
+          <option value="• Combo Cuerno + Bebida">Combo Cuerno + Bebida ($65.00)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Método de Pago</label>
+        <select id="ventaMetodo">
+          <option value="Efectivo">Efectivo (Mostrador)</option>
+          <option value="Transferencia / SPEI">Transferencia / SPEI</option>
+          <option value="Tarjeta">Tarjeta de Débito/Crédito</option>
+        </select>
+      </div>
+
+      <button class="btn-main-green" onclick="guardarVentaDirecta()">Guardar e Iniciar Orden</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // Base de Datos en memoria
@@ -575,7 +615,7 @@
     let activeClients = [];
     let selectedPendingId = null;
     let currentActiveOrderId = null;
-    let timerInterval = null;
+    let currentChatClientId = null;
 
     function init() {
       renderPendingGrid();
@@ -631,7 +671,6 @@
         pendingPayments.forEach((p, index) => {
           p.secondsLeft--;
           if (p.secondsLeft <= 0) {
-            // Cancelar pedido automáticamente tras 30 min
             pendingPayments.splice(index, 1);
             renderPendingGrid();
             if (selectedPendingId === p.id) closeModal('modalPendiente');
@@ -662,6 +701,10 @@
       const orderId = `ord-${Date.now()}`;
       const clientId = `cli-${Date.now()}`;
 
+      const initialChat = [
+        { sender: 'client', text: `¡Hola! Acabo de transferir mi pedido (${item.comanda}).`, time: getHoraActual() }
+      ];
+
       const newOrder = {
         id: orderId,
         title: `Orden #${orderNum}`,
@@ -677,11 +720,12 @@
         name: item.name,
         user: item.user,
         avatar: item.avatar,
-        orderId: orderId
+        orderId: orderId,
+        chatHistory: initialChat
       };
 
       activeOrders.push(newOrder);
-      activeClients.unshift(newClient); // Pone el chat al inicio
+      activeClients.unshift(newClient);
 
       pendingPayments.splice(itemIndex, 1);
 
@@ -709,13 +753,13 @@
         const container = document.createElement('div');
         container.className = 'client-avatar-container';
         container.id = c.id;
-        container.onclick = () => openChat(c.user, c.avatar);
+        container.onclick = () => abrirChatPorClienteId(c.id);
         container.innerHTML = `<div class="client-avatar">${c.avatar}</div>`;
         clientsList.appendChild(container);
       });
     }
 
-    // Abre la orden e invoca el chat correspondiente al lado
+    // Abre la orden y su respectivo chat individual
     function abrirOrdenYChat(orderId) {
       currentActiveOrderId = orderId;
       const order = activeOrders.find(o => o.id === orderId);
@@ -728,14 +772,59 @@
       document.getElementById('ordenDireccion').innerText = order.address;
 
       openModal('modalOrden');
-      // Sincroniza abriendo el chat correspondiente
-      openChat(order.user, order.avatar);
+      abrirChatPorClienteId(order.clientId);
     }
 
-    function openChat(nombre, avatar) {
-      document.getElementById('chatName').innerText = nombre;
-      document.getElementById('chatAvatar').innerText = avatar;
+    function abrirChatPorClienteId(clientId) {
+      const client = activeClients.find(c => c.id === clientId);
+      if (!client) return;
+
+      currentChatClientId = clientId;
+      document.getElementById('chatName').innerText = client.user;
+      document.getElementById('chatAvatar').innerText = client.avatar;
+
+      renderChatBody(client.chatHistory);
       openModal('modalChat');
+    }
+
+    function renderChatBody(chatHistory) {
+      const chatBody = document.getElementById('chatBody');
+      chatBody.innerHTML = '';
+
+      if (!chatHistory || chatHistory.length === 0) {
+        chatBody.innerHTML = '<div style="text-align:center; color:#666; font-size:0.8rem; margin-top:20px;">Sin mensajes aún</div>';
+        return;
+      }
+
+      chatHistory.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-msg ${msg.sender}`;
+        msgDiv.innerHTML = `${msg.text} <span class="msg-time">${msg.time}${msg.sender === 'admin' ? ' ✓' : ''}</span>`;
+        chatBody.appendChild(msgDiv);
+      });
+
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function enviarMensajeChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text || !currentChatClientId) return;
+
+      const client = activeClients.find(c => c.id === currentChatClientId);
+      if (client) {
+        client.chatHistory.push({
+          sender: 'admin',
+          text: text,
+          time: getHoraActual()
+        });
+        renderChatBody(client.chatHistory);
+        input.value = '';
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') enviarMensajeChat();
     }
 
     function marcarOrdenEntregada() {
@@ -751,31 +840,68 @@
       closeModal('modalChat');
     }
 
-    function enviarMensajeChat() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (text !== '') {
-        const chatBody = document.getElementById('chatBody');
-        const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        
-        const msgDiv = document.createElement('div');
-        msgDiv.className = 'chat-msg admin';
-        msgDiv.innerHTML = `${text} <span class="msg-time">${timeStr} ✓</span>`;
-        
-        chatBody.appendChild(msgDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
-        input.value = '';
+    // Registrar Venta Manual (Boton ✅)
+    function guardarVentaDirecta() {
+      const clienteInput = document.getElementById('ventaCliente').value.trim() || '@mostrador';
+      const productoSel = document.getElementById('ventaProducto').value;
+      const metodoSel = document.getElementById('ventaMetodo').value;
+
+      const orderNum = activeOrders.length + 1;
+      const orderId = `ord-${Date.now()}`;
+      const clientId = `cli-${Date.now()}`;
+
+      const newOrder = {
+        id: orderId,
+        title: `Orden #${orderNum}`,
+        user: clienteInput,
+        avatar: '🛍️',
+        comanda: productoSel,
+        address: `Venta Directa (${metodoSel})`,
+        clientId: clientId
+      };
+
+      const newClient = {
+        id: clientId,
+        name: clienteInput,
+        user: clienteInput,
+        avatar: '🛍️',
+        orderId: orderId,
+        chatHistory: [
+          { sender: 'client', text: `Venta registrada directamente (${metodoSel}).`, time: getHoraActual() }
+        ]
+      };
+
+      activeOrders.push(newOrder);
+      activeClients.unshift(newClient);
+
+      renderOrdersAndClients();
+      closeModal('modalRegistroVenta');
+
+      document.getElementById('ventaCliente').value = '';
+    }
+
+    // Efecto interactivo al presionar el botón 🥐
+    function lanzarCuernoFlotante() {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+          const croissant = document.createElement('div');
+          croissant.className = 'floating-croissant';
+          croissant.innerText = '🥐';
+          croissant.style.left = `${Math.random() * 80 + 10}%`;
+          croissant.style.bottom = '80px';
+          document.body.appendChild(croissant);
+
+          setTimeout(() => croissant.remove(), 1500);
+        }, i * 150);
       }
     }
 
-    function handleKeyPress(e) {
-      if (e.key === 'Enter') enviarMensajeChat();
+    function getHoraActual() {
+      const now = new Date();
+      return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
     }
 
-    function lanzarCuernoFlotante() {}
-
-    // Inicializar Mapa y datos
+    // Inicializar Mapa
     const map = L.map('map').setView([19.6865, -99.1126], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
     L.marker([19.6865, -99.1126]).addTo(map).bindPopup('Centro de Operaciones').openPopup();
