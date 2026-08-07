@@ -102,10 +102,16 @@
       overflow-y: auto;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 10px;
       align-content: start;
       justify-items: center;
       background: #0a0a0a;
+    }
+
+    /* Avatar del Cliente con soporte de badge de notificación */
+    .client-avatar-container {
+      position: relative;
+      display: inline-block;
     }
 
     .client-avatar {
@@ -120,6 +126,25 @@
       justify-content: center;
       font-size: 1.2rem;
       cursor: pointer;
+    }
+
+    /* Badge de notificación en círculo rojo */
+    .unread-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background-color: #ff0000;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #000;
     }
 
     /* 3. Grid de 8 Órdenes Pendientes de Pago */
@@ -449,19 +474,25 @@
       background: #111;
       border: 1px solid #444;
       color: #fff;
-      padding: 6px 10px;
+      padding: 8px 10px;
       border-radius: 6px;
       font-family: Arial, sans-serif;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .chat-input-row input:focus {
+      border-color: #00e676;
     }
 
     .btn-send {
       background: #00e676;
       border: none;
-      padding: 0 12px;
+      padding: 0 14px;
       border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 1rem;
     }
   </style>
 </head>
@@ -484,12 +515,31 @@
     </div>
     
     <div class="clients-scroll">
-      <div class="client-avatar" onclick="openChat('Cliente 1', '👤')">👤</div>
-      <div class="client-avatar" onclick="openChat('Cliente 2', '😎')">😎</div>
-      <div class="client-avatar" onclick="openChat('Cliente 3', '🤠')">🤠</div>
-      <div class="client-avatar" onclick="openChat('Cliente 4', '🦊')">🦊</div>
-      <div class="client-avatar" onclick="openChat('Cliente 5', '👾')">👾</div>
-      <div class="client-avatar" onclick="openChat('Cliente 6', '🤖')">🤖</div>
+      <div class="client-avatar-container" onclick="openChat('Cliente 1', '👤', this)">
+        <div class="client-avatar">👤</div>
+        <span class="unread-badge">1</span>
+      </div>
+
+      <div class="client-avatar-container" onclick="openChat('Cliente 2', '😎', this)">
+        <div class="client-avatar">😎</div>
+        <span class="unread-badge">2</span>
+      </div>
+
+      <div class="client-avatar-container" onclick="openChat('Cliente 3', '🤠', this)">
+        <div class="client-avatar">🤠</div>
+      </div>
+
+      <div class="client-avatar-container" onclick="openChat('Cliente 4', '🦊', this)">
+        <div class="client-avatar">🦊</div>
+      </div>
+
+      <div class="client-avatar-container" onclick="openChat('Cliente 5', '👾', this)">
+        <div class="client-avatar">👾</div>
+      </div>
+
+      <div class="client-avatar-container" onclick="openChat('Cliente 6', '🤖', this)">
+        <div class="client-avatar">🤖</div>
+      </div>
     </div>
   </div>
 
@@ -539,7 +589,7 @@
       </div>
 
       <div class="chat-input-row">
-        <input type="text" id="chatInput" placeholder="Escribe un mensaje...">
+        <input type="text" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="handleKeyPress(event)">
         <button class="btn-send" onclick="enviarMensajeChat()">➤</button>
       </div>
     </div>
@@ -638,6 +688,11 @@
       </div>
 
       <div class="detail-item">
+        <label>Pago por parte de</label>
+        <span style="color: #ffff00; font-weight: bold;">Juan Pérez Morales</span>
+      </div>
+
+      <div class="detail-item">
         <label>Estado</label>
         <span style="color: #ff9800; font-weight: bold;">Esperando comprobante (15 min)</span>
       </div>
@@ -669,13 +724,23 @@
       }
     }
 
-    // 3. Chat
-    function openChat(nombre, avatar) {
+    // 3. Abrir Chat y remover notificación (Badge rojo)
+    function openChat(nombre, avatar, el) {
       document.getElementById('chatName').innerText = nombre;
       document.getElementById('chatAvatar').innerText = avatar;
+
+      // Si el elemento tiene un badge de notificación, lo elimina al abrir el chat
+      if (el) {
+        const badge = el.querySelector('.unread-badge');
+        if (badge) {
+          badge.remove();
+        }
+      }
+
       openModal('modalChat');
     }
 
+    // Funciones del Chat
     function enviarMensajeChat() {
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
@@ -691,6 +756,12 @@
         chatBody.appendChild(msgDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
         input.value = '';
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') {
+        enviarMensajeChat();
       }
     }
 
