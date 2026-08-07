@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Centro de Operaciones - Que!Cuerno$</title>
-  <!-- CSS Leaflet Map (Gratuito para mapas) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * {
@@ -56,14 +55,14 @@
       font-size: 1.5rem;
       cursor: pointer;
       border-radius: 8px;
-      background-color: #ff0000; /* Rojo por defecto (Negado) */
+      background-color: #ff0000;
       color: #ffffff;
       transition: background-color 0.2s ease;
       user-select: none;
     }
 
     .schedule-box.active {
-      background-color: #00e676; /* Verde (Confirmado) */
+      background-color: #00e676;
       color: #000000;
     }
 
@@ -95,15 +94,40 @@
       border-left: 3px solid #ffff00;
     }
 
-    .clients-scroll {
+    /* Contenedor de Clientes con Flechas */
+    .clients-wrapper {
       border: 1px solid #444;
       border-radius: 8px;
-      padding: 8px;
-      overflow-x: auto;
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scroll-arrow {
+      background: rgba(0,0,0,0.7);
+      color: #ffff00;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 2;
+    }
+
+    .clients-scroll {
       display: flex;
       gap: 8px;
       align-items: center;
-      background: #0a0a0a;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      width: 100%;
+      padding: 4px 0;
+    }
+
+    .clients-scroll::-webkit-scrollbar {
+      display: none;
     }
 
     .client-avatar {
@@ -144,15 +168,15 @@
     }
 
     /* 4. Mapa GPS */
-   #map {
-  width: 100%;
-  height: 180px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  z-index: 1; /* Mantiene el mapa abajo de los modales */
-}
+    #map {
+      width: 100%;
+      height: 180px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      z-index: 1;
+    }
 
-    /* 5. Footer con Botón Cuernito y Paloma */
+    /* 5. Footer solo con Emojis */
     footer {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -166,265 +190,254 @@
       color: #fff;
       padding: 10px;
       border-radius: 8px;
-      font-size: 1.4rem;
+      font-size: 1.8rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    /* --- ESTILO DE VENTANAS FLOTANTES --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .modal-card {
+      background: #000000;
+      border: 2px solid #ffffff;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 360px;
+      padding: 16px;
+      position: relative;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #ff0000;
+    }
+
+    .modal-title {
+      text-align: center;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+    }
+
+    /* Modal Registrar Venta */
+    .sale-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .sale-modal-header .btn-confirm {
+      font-size: 1.6rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #00e676;
+    }
+
+    .modal-input-styled {
+      background: #111111;
+      border: 1px solid #444444;
+      color: #ffffff;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      width: 100%;
+      outline: none;
+    }
+
+    .toggle-group {
+      display: flex;
       gap: 8px;
     }
 
-    /* --- ESTILO UNIFICADO DE VENTANAS FLOTANTES --- */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.9);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 10000;
-}
+    .btn-toggle {
+      flex: 1;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
 
-.modal-card {
-  background: #000000;
-  border: 2px solid #ffffff;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 360px;
-  padding: 16px;
-  position: relative;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+    .btn-toggle.selected {
+      background: #00e676;
+      color: #000000;
+    }
 
-/* Botón Tache Rojo (Top Left) */
-.btn-close {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 1.4rem;
-  cursor: pointer;
-  background: none;
-  border: none;
-}
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
 
-.modal-title {
-  text-align: center;
-  font-size: 1.6rem;
-  letter-spacing: 1px;
-}
+    .input-prefix-icon {
+      position: absolute;
+      left: 12px;
+      font-size: 1.2rem;
+      pointer-events: none;
+    }
 
-/* Cabecera interna: Cliente (Izquierda) + Comanda (Derecha) */
-.modal-header-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 10px;
-  align-items: center;
-  border-bottom: 1px solid #333;
-  padding-bottom: 12px;
-}
+    .input-with-icon .modal-input-styled {
+      padding-left: 40px;
+    }
 
-.client-info-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
+    /* Modal Chat Específico */
+    .chat-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+      margin-top: 10px;
+    }
 
-.client-avatar-large {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 2px solid #ffff00;
-  background: #222;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
-}
+    .chat-body {
+      height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 6px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      border: 1px solid #222;
+    }
 
-.comanda-box {
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 8px;
-  background: #111;
-  font-size: 0.9rem;
-}
+    .chat-msg {
+      max-width: 80%;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: Arial, sans-serif;
+      position: relative;
+    }
 
-.comanda-box h4 {
-  color: #ffff00;
-  margin-bottom: 4px;
-  font-size: 1rem;
-}
+    .chat-msg.client {
+      background: #222;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
 
-/* Lista de detalles */
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #222;
-  padding-bottom: 6px;
-}
+    .chat-msg.admin {
+      background: #1e3d2f;
+      color: #00e676;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
 
-.detail-item label {
-  color: #888;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-}
+    .msg-time {
+      font-size: 0.65rem;
+      color: #888;
+      float: right;
+      margin-left: 8px;
+      margin-top: 4px;
+    }
 
-/* Botón Verde Principal */
-.btn-main-green {
-  background: #00e676;
-  color: #000000;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 1.3rem;
-  cursor: pointer;
-  font-weight: bold;
-  margin-top: 6px;
-}
+    .chat-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
-/* Modal Registrar Venta */
-.sale-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 5px;
-}
+    .chat-actions-column {
+      display: flex;
+      gap: 4px;
+    }
 
-.sale-modal-header .btn-close,
-.sale-modal-header .btn-confirm {
-  position: static; /* Quitamos posicion fija anterior */
-  font-size: 1.6rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
+    .chat-btn-small {
+      flex: 1;
+      background: #1f1f1f;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
 
-.sale-modal-header .btn-close {
-  color: #ff0000;
-}
+    .chat-input-row {
+      display: flex;
+      gap: 6px;
+    }
 
-.sale-modal-header .btn-confirm {
-  color: #00e676;
-}
+    .chat-input-row input {
+      flex: 1;
+      background: #111;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: Arial, sans-serif;
+      font-size: 0.9rem;
+    }
 
-/* Campos de entrada */
-.modal-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.modal-field label {
-  font-size: 0.95rem;
-  color: #cccccc;
-}
-
-.modal-input-styled {
-  background: #111111;
-  border: 1px solid #444444;
-  color: #ffffff;
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  width: 100%;
-  outline: none;
-}
-
-.modal-input-styled:focus {
-  border-color: #00e676;
-}
-
-/* Grupo de botones interactivos (Tipo y Método de pago) */
-.toggle-group {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-toggle {
-  flex: 1;
-  background: #ffffff;
-  color: #000000;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: bold;
-  transition: all 0.2s ease;
-}
-
-/* Estado SELECCIONADO (Verde) */
-.btn-toggle.selected {
-  background: #00e676;
-  color: #000000;
-  box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
-}
-
-/* Inputs con icono o prefijo dentro */
-.input-with-icon {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.input-prefix-icon {
-  position: absolute;
-  left: 12px;
-  font-size: 1.2rem;
-  pointer-events: none;
-}
-
-.input-with-icon .modal-input-styled {
-  padding-left: 40px; /* Espacio para el emoji o signo */
-}
-
-/* Modal Registrar Venta simplificado */
-#modalRegistroVenta .modal-card {
-  gap: 14px;
-}z
-
+    .btn-send {
+      background: #00e676;
+      border: none;
+      padding: 0 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header>
     <a href="admin.html" class="btn-back">⬅️</a>
     <h1>Que!Cuerno$</h1>
   </header>
 
-  <!-- 1. Horario -->
   <div class="schedule-box" id="scheduleBtn" onclick="toggleSchedule()">
     ⏰ 01:00 - 12:00
   </div>
 
-  <!-- 2. Ordenes y Clientes -->
   <div class="top-section">
     <div class="orders-scroll">
       <div class="order-item" onclick="openModal('modalOrden')">Orden #1 🥐</div>
       <div class="order-item" onclick="openModal('modalOrden')">Orden #2 🥐</div>
       <div class="order-item" onclick="openModal('modalOrden')">Orden #3 🥐</div>
     </div>
-    <div class="clients-scroll">
-      <div class="client-avatar" onclick="alert('Chat con Cliente 1')">👤</div>
-      <div class="client-avatar" onclick="alert('Chat con Cliente 2')">👤</div>
-      <div class="client-avatar" onclick="alert('Chat con Cliente 3')">👤</div>
-      <div class="client-avatar" onclick="alert('Chat con Cliente 4')">👤</div>
+    <div class="clients-wrapper">
+      <button class="scroll-arrow" onclick="scrollClients(-50)">◀</button>
+      <div class="clients-scroll" id="clientsScroll">
+        <div class="client-avatar" onclick="openChat('Cliente 1', '👤')">👤</div>
+        <div class="client-avatar" onclick="openChat('Cliente 2', '😎')">😎</div>
+        <div class="client-avatar" onclick="openChat('Cliente 3', '🤠')">🤠</div>
+        <div class="client-avatar" onclick="openChat('Cliente 4', '🦊')">🦊</div>
+      </div>
+      <button class="scroll-arrow" onclick="scrollClients(50)">▶</button>
     </div>
   </div>
 
-  <!-- 3. 8 Pendientes de Pago -->
   <div class="pending-grid">
     <div class="pending-card" onclick="openModal('modalPendiente')">P-1 <span>19m</span></div>
     <div class="pending-card" onclick="openModal('modalPendiente')">P-2 <span>15m</span></div>
@@ -436,129 +449,110 @@
     <div class="pending-card" onclick="openModal('modalPendiente')">P-8 <span>01m</span></div>
   </div>
 
-  <!-- 4. Mapa -->
   <div id="map"></div>
 
-  <!-- 5. Footer con Acciones -->
   <footer>
-    <button class="btn-action" onclick="alert('Registrar Cuerno Extra')">🥐 Cuerno</button>
-    <button class="btn-action" onclick="openModal('modalRegistroVenta')">✅ Venta</button>
+    <button class="btn-action" onclick="lanzarCuernoFlotante()">🥐</button>
+    <button class="btn-action" onclick="openModal('modalRegistroVenta')">✅</button>
   </footer>
 
-  <!-- ================= VENTANAS FLOTANTES ================= -->
-
-  <!-- Modal 1: Registrar Venta (Palomita Verde) -->
-  <!-- Modal 3: Registrar Venta (Palomita Verde) -->
-<div class="modal-overlay" id="modalRegistroVenta">
-  <div class="modal-card">
-    
-    <div class="sale-modal-header">
-      <button class="btn-close" onclick="closeModal('modalRegistroVenta')">❌</button>
-      <div class="modal-title" style="margin: 0; font-size: 1.5rem;">Registrar Venta</div>
-      <button class="btn-confirm" onclick="registrarVenta()">✅</button>
-    </div>
-
-    <div class="input-with-icon">
-      <span class="input-prefix-icon">🥐</span>
-      <input type="number" class="modal-input-styled" value="1" id="ventaCant" min="1">
-    </div>
-
-    <div class="toggle-group">
-      <button class="btn-toggle selected" onclick="selectOption(this)">Salado</button>
-      <button class="btn-toggle" onclick="selectOption(this)">Dulce</button>
-      <button class="btn-toggle" onclick="selectOption(this)">Especial</button>
-    </div>
-
-    <div class="input-with-icon">
-      <span class="input-prefix-icon" style="color: #00e676; font-weight: bold;">$</span>
-      <input type="number" class="modal-input-styled" value="35" id="ventaPrecio">
-    </div>
-
-    <div class="toggle-group">
-      <button class="btn-toggle selected" onclick="selectOption(this)">💵 Efec.</button>
-      <button class="btn-toggle" onclick="selectOption(this)">💳 Tarj.</button>
-      <button class="btn-toggle" onclick="selectOption(this)">🅰️ App</button>
-    </div>
-
-    <div class="input-with-icon">
-      <span class="input-prefix-icon">🔍</span>
-      <input type="text" class="modal-input-styled" placeholder="Nº, Nombre o @usuario" id="ventaCliente">
-    </div>
-
-  </div>
-</div>
-
-  <!-- Modal: Detalle de Órdenes -->
-<div class="modal-overlay" id="modalOrden">
-  <div class="modal-card">
-    <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
-    <div class="modal-title">Orden #1</div>
-
-    <!-- Encabezado: Cliente + Comanda -->
-    <div class="modal-header-grid">
-      <div class="client-info-box">
-        <div class="client-avatar-large">👤</div>
-        <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
+  <div class="modal-overlay" id="modalChat">
+    <div class="modal-card">
+      <button class="btn-close" style="position: static;" onclick="closeModal('modalChat')">❌</button>
+      <div class="chat-header">
+        <div class="client-avatar" id="chatAvatar" style="width: 50px; height: 50px; font-size: 1.5rem;">👤</div>
+        <span id="chatName" style="font-size: 1.1rem; margin-top: 4px;">@cliente</span>
       </div>
-      <div class="comanda-box">
-        <h4>Comanda</h4>
-        <p>• 2x Nutella</p>
-        <p>• 1x Queso</p>
+
+      <div class="chat-body" id="chatBody">
+        <div class="chat-msg client">
+          ¡Hola! ¿A qué hora llega mi pedido?
+          <span class="msg-time">14:02</span>
+        </div>
+        <div class="chat-msg admin">
+          ¡Hola! Va en camino, llega en 10 min 🛵
+          <span class="msg-time">14:05 ✓✓</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Detalles de la orden -->
-    <div class="detail-item">
-      <label>Dirección de entrega</label>
-      <span>Av. Principal #123, Col. Centro</span>
-    </div>
+      <div class="chat-bottom-grid">
+        <div class="chat-actions-column">
+          <button class="chat-btn-small" onclick="alert('Acción rápida 1')">⚡</button>
+          <button class="chat-btn-small" onclick="alert('Acción rápida 2')">📍</button>
+        </div>
+        <button class="chat-btn-small" style="background: #222; border-color: #ffff00;" onclick="alert('Ver Orden del Cliente')">📋 Orden</button>
+      </div>
 
-    <div class="detail-item">
-      <label>Hora de entrega</label>
-      <span>02:30 PM</span>
-    </div>
-
-    <div class="detail-item">
-      <label>Especificaciones de entrega</label>
-      <span>Dejar en recepción / Llamar al llegar</span>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Escribe un mensaje...">
+        <button class="btn-send" onclick="enviarMensajeChat()">➤</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Modal: Pendientes de Pago -->
-<div class="modal-overlay" id="modalPendiente">
-  <div class="modal-card">
-    <button class="btn-close" onclick="closeModal('modalPendiente')">❌</button>
-    <div class="modal-title">Pendiente Pago</div>
-
-    <!-- Encabezado: Cliente + Comanda -->
-    <div class="modal-header-grid">
-      <div class="client-info-box">
-        <div class="client-avatar-large">👤</div>
-        <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
+  <div class="modal-overlay" id="modalRegistroVenta">
+    <div class="modal-card">
+      <div class="sale-modal-header">
+        <button class="btn-close" style="position: static;" onclick="closeModal('modalRegistroVenta')">❌</button>
+        <div class="modal-title" style="margin: 0; font-size: 1.5rem;">Registrar Venta</div>
+        <button class="btn-confirm" onclick="registrarVenta()">✅</button>
       </div>
-      <div class="comanda-box">
-        <h4>Comanda</h4>
-        <p>• 1x Jamón y Queso</p>
+
+      <div class="input-with-icon">
+        <span class="input-prefix-icon">🥐</span>
+        <input type="number" class="modal-input-styled" value="1" id="ventaCant" min="1">
+      </div>
+
+      <div class="toggle-group">
+        <button class="btn-toggle selected" onclick="selectOption(this)">Salado</button>
+        <button class="btn-toggle" onclick="selectOption(this)">Dulce</button>
+        <button class="btn-toggle" onclick="selectOption(this)">Especial</button>
+      </div>
+
+      <div class="input-with-icon">
+        <span class="input-prefix-icon" style="color: #00e676; font-weight: bold;">$</span>
+        <input type="number" class="modal-input-styled" value="35" id="ventaPrecio">
+      </div>
+
+      <div class="toggle-group">
+        <button class="btn-toggle selected" onclick="selectOption(this)">💵 Efec.</button>
+        <button class="btn-toggle" onclick="selectOption(this)">💳 Tarj.</button>
+        <button class="btn-toggle" onclick="selectOption(this)">🅰️ App</button>
+      </div>
+
+      <div class="input-with-icon">
+        <span class="input-prefix-icon">🔍</span>
+        <input type="text" class="modal-input-styled" placeholder="Nº, Nombre o @usuario" id="ventaCliente">
       </div>
     </div>
-
-    <!-- Detalles del pago -->
-    <div class="detail-item">
-      <label>Método de pago</label>
-      <span>SPEI Transferencia</span>
-    </div>
-
-    <div class="detail-item">
-      <label>Estado</label>
-      <span style="color: #ff9800;">Esperando comprobante (15 min)</span>
-    </div>
-
-    <button class="btn-main-green" onclick="confirmarPago()">Confirmar Pago</button>
   </div>
-</div>
 
-  <!-- JS para Mapa y Modales -->
+  <div class="modal-overlay" id="modalOrden">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalOrden')">❌</button>
+      <div class="modal-title">Orden #1</div>
+      <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; align-items: center; border-bottom: 1px solid #333; padding-bottom: 12px;">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #ffff00; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">👤</div>
+          <span style="font-size: 0.85rem; color: #fff;">@usuario</span>
+        </div>
+        <div style="border: 1px solid #444; border-radius: 8px; padding: 8px; background: #111; font-size: 0.9rem;">
+          <h4 style="color: #ffff00; margin-bottom: 4px;">Comanda</h4>
+          <p>• 2x Nutella</p>
+          <p>• 1x Queso</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalPendiente">
+    <div class="modal-card">
+      <button class="btn-close" onclick="closeModal('modalPendiente')">❌</button>
+      <div class="modal-title">Pendiente Pago</div>
+      <button style="background: #00e676; color: #000; border: none; padding: 12px; border-radius: 8px; font-size: 1.3rem; cursor: pointer; font-weight: bold; margin-top: 6px;" onclick="confirmarPago()">Confirmar Pago</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // 1. Horario Toggle
@@ -569,63 +563,82 @@
 
     // 2. Modales
     function openModal(id) {
-  // Oculta el mapa para que no estorbe
-  document.getElementById('map').style.display = 'none';
-  document.getElementById(id).style.display = 'flex';
-}
-
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-  // Vuelve a mostrar el mapa y recalculamos su tamaño
-  const mapContainer = document.getElementById('map');
-  mapContainer.style.display = 'block';
-  if (typeof map !== 'undefined') {
-    map.invalidateSize();
-  }
-}
-
-    function selectType(btn) {
-      btn.parentElement.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.getElementById('map').style.display = 'none';
+      document.getElementById(id).style.display = 'flex';
     }
 
-    function selectPay(btn) {
-      btn.parentElement.querySelectorAll('.btn-select').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      const mapContainer = document.getElementById('map');
+      mapContainer.style.display = 'block';
+      if (typeof map !== 'undefined') {
+        map.invalidateSize();
+      }
+    }
+
+    // 3. Scroll de Clientes
+    function scrollClients(val) {
+      document.getElementById('clientsScroll').scrollBy({ left: val, behavior: 'smooth' });
+    }
+
+    // 4. Chat
+    function openChat(nombre, avatar) {
+      document.getElementById('chatName').innerText = nombre;
+      document.getElementById('chatAvatar').innerText = avatar;
+      openModal('modalChat');
+    }
+
+    function enviarMensajeChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (text !== '') {
+        const chatBody = document.getElementById('chatBody');
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg admin';
+        msgDiv.innerHTML = `${text} <span class="msg-time">${timeStr} ✓</span>`;
+        
+        chatBody.appendChild(msgDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        input.value = '';
+      }
+    }
+
+    // 5. Botón Cuernito Flotante (Evento Dinámico)
+    function lanzarCuernoFlotante() {
+      alert('🥐 ¡Cuerno Flotante activado! Se ha desplegado en las pantallas de los usuarios en la Mini App.');
     }
 
     function registrarVenta() {
-  alert('¡Venta registrada con éxito!');
-  closeModal('modalRegistroVenta'); // Esto ya volverá a mostrar el mapa
-}
+      alert('¡Venta registrada con éxito!');
+      closeModal('modalRegistroVenta');
+    }
 
-function confirmarPago() {
-  alert('¡Pago confirmado!');
-  closeModal('modalPendiente'); // Esto ya volverá a mostrar el mapa
-}
+    function confirmarPago() {
+      alert('¡Pago confirmado!');
+      closeModal('modalPendiente');
+    }
 
-function selectOption(btn) {
-  // Quita la clase 'selected' de todos los botones en el mismo grupo
-  const group = btn.parentElement.querySelectorAll('.btn-toggle');
-  group.forEach(b => b.classList.remove('selected'));
-  
-  // Activa el botón presionado
-  btn.classList.add('selected');
-}
+    function selectOption(btn) {
+      const group = btn.parentElement.querySelectorAll('.btn-toggle');
+      group.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
 
-    // 3. Inicializar Mapa (Ubicación por defecto con Radio de 2km)
+    // 6. Inicializar Mapa
     const map = L.map('map').setView([19.6865, -99.1126], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19
     }).addTo(map);
 
-    // Marcador y Radio 2 km
     L.marker([19.6865, -99.1126]).addTo(map).bindPopup('Centro de Operaciones').openPopup();
     L.circle([19.6865, -99.1126], {
       color: '#ffff00',
       fillColor: '#ffff00',
       fillOpacity: 0.15,
-      radius: 2000 // 2 km
+      radius: 2000
     }).addTo(map);
   </script>
 </body>
