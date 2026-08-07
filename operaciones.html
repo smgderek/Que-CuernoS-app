@@ -517,6 +517,8 @@
     ⏰ 01:00 - 12:00
   </div>
 
+  <div class="client-avatar" onclick="openModal('modalChat')">👤</div>
+
   <!-- 2. Ordenes y Clientes -->
   <div class="top-section">
     <div class="orders-scroll">
@@ -634,7 +636,7 @@
 </div>
 
 <div class="modal-overlay" id="modalChat">
-  <div class="modal-card">
+  <div class="modal-card" style="max-width: 380px;">
     <button class="btn-close" onclick="closeModal('modalChat')">❌</button>
     
     <div class="modal-header-grid" style="border-bottom: 1px solid #222; padding-bottom: 8px;">
@@ -654,7 +656,7 @@
       </div>
 
       <div class="chat-bubble outgoing">
-        <span>¡Hola! Ya está en preparación, sale pronto 🛵</span>
+        <span>¡Hola! Sale en 5 minutos 🛵</span>
         <span class="chat-time">10:15 AM ✓✓</span>
       </div>
     </div>
@@ -664,9 +666,18 @@
       <button class="btn-send" onclick="enviarMensajeChat()">➤</button>
     </div>
 
-    <div class="chat-footer-actions">
-      <button class="chat-action-btn" onclick="alert('Sección de Acciones Rápidas')">⚡ Acciones</button>
-      <button class="chat-action-btn" onclick="alert('Sección Orden')">📝 Orden</button>
+    <div class="chat-bottom-grid">
+      <div class="chat-actions-column">
+        <button class="btn-chat-action" title="Cambiar a Repartiendo" onclick="alert('Estado cambiado a: Repartiendo 🏁')">🏁</button>
+        <button class="btn-chat-action" title="Confirmar/Registrar" onclick="alert('Orden confirmada ✅')">✅</button>
+      </div>
+
+      <div class="chat-order-summary">
+        <h5>📝 Orden Activa</h5>
+        <p>• 2x Cuerno Dulce</p>
+        <p>• 1x Cuerno Salado</p>
+        <p style="color: #00e676; font-weight: bold; margin-top: auto;">Total: $105.00</p>
+      </div>
     </div>
 
   </div>
@@ -703,7 +714,7 @@
 
     <button class="btn-main-green" onclick="confirmarPago()">Confirmar Pago</button>
 
-    <div class="client-avatar" onclick="openModal('modalChat')">👤</div>
+
   </div>
 </div>
 
