@@ -369,6 +369,31 @@
   color: #000000;
   box-shadow: 0 0 8px rgba(0, 230, 118, 0.4);
 }
+
+/* Inputs con icono o prefijo dentro */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-prefix-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+.input-with-icon .modal-input-styled {
+  padding-left: 40px; /* Espacio para el emoji o signo */
+}
+
+/* Modal Registrar Venta simplificado */
+#modalRegistroVenta .modal-card {
+  gap: 14px;
+}
+
   </style>
 </head>
 <body>
@@ -427,48 +452,37 @@
 <div class="modal-overlay" id="modalRegistroVenta">
   <div class="modal-card">
     
-    <!-- Cabecera con Tache Rojo y Paloma Verde -->
     <div class="sale-modal-header">
       <button class="btn-close" onclick="closeModal('modalRegistroVenta')">❌</button>
       <div class="modal-title" style="margin: 0; font-size: 1.5rem;">Registrar Venta</div>
       <button class="btn-confirm" onclick="registrarVenta()">✅</button>
     </div>
 
-    <!-- Cantidad -->
-    <div class="modal-field">
-      <label>Cantidad 🥐</label>
+    <div class="input-with-icon">
+      <span class="input-prefix-icon">🥐</span>
       <input type="number" class="modal-input-styled" value="1" id="ventaCant" min="1">
     </div>
 
-    <!-- Tipo -->
-    <div class="modal-field">
-      <label>Tipo</label>
-      <div class="toggle-group">
-        <button class="btn-toggle selected" onclick="selectOption(this)">Sencillo</button>
-        <button class="btn-toggle" onclick="selectOption(this)">Relleno</button>
-      </div>
+    <div class="toggle-group">
+      <button class="btn-toggle selected" onclick="selectOption(this)">Salado</button>
+      <button class="btn-toggle" onclick="selectOption(this)">Dulce</button>
+      <button class="btn-toggle" onclick="selectOption(this)">Especial</button>
     </div>
 
-    <!-- Precio -->
-    <div class="modal-field">
-      <label>Precio $</label>
+    <div class="input-with-icon">
+      <span class="input-prefix-icon" style="color: #00e676; font-weight: bold;">$</span>
       <input type="number" class="modal-input-styled" value="35" id="ventaPrecio">
     </div>
 
-    <!-- Método de pago -->
-    <div class="modal-field">
-      <label>Método de Pago</label>
-      <div class="toggle-group">
-        <button class="btn-toggle selected" onclick="selectOption(this)">💵 Efec.</button>
-        <button class="btn-toggle" onclick="selectOption(this)">💳 Tarj.</button>
-        <button class="btn-toggle" onclick="selectOption(this)">🅰️ App</button>
-      </div>
+    <div class="toggle-group">
+      <button class="btn-toggle selected" onclick="selectOption(this)">💵 Efec.</button>
+      <button class="btn-toggle" onclick="selectOption(this)">💳 Tarj.</button>
+      <button class="btn-toggle" onclick="selectOption(this)">🅰️ App</button>
     </div>
 
-    <!-- Cliente -->
-    <div class="modal-field">
-      <label>Cliente</label>
-      <input type="text" class="modal-input-styled" placeholder="Nombre / Telegram @" id="ventaCliente">
+    <div class="input-with-icon">
+      <span class="input-prefix-icon">🔍</span>
+      <input type="text" class="modal-input-styled" placeholder="Nº, Nombre o @usuario" id="ventaCliente">
     </div>
 
   </div>
