@@ -394,6 +394,114 @@
   gap: 14px;
 }
 
+/* --- ESTILOS MODAL CHAT CLIENTE --- */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 8px;
+  background: #0a0a0a;
+  border-radius: 8px;
+  border: 1px solid #222222;
+}
+
+.chat-bubble {
+  max-width: 82%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+
+.chat-bubble.incoming {
+  background: #1f1f1f;
+  color: #ffffff;
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.chat-bubble.outgoing {
+  background: #00e676;
+  color: #000000;
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+  font-weight: 500;
+}
+
+.chat-time {
+  font-size: 0.68rem;
+  align-self: flex-end;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Entrada de texto */
+.chat-input-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.chat-input {
+  flex: 1;
+  background: #111111;
+  border: 1px solid #444444;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: #00e676;
+}
+
+.btn-send {
+  background: #00e676;
+  color: #000000;
+  border: none;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+/* Pie del Chat: 2 Secciones con Emojis Referenciales */
+.chat-footer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.chat-action-btn {
+  background: #1a1a1a;
+  border: 1px solid #444444;
+  color: #ffffff;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.chat-action-btn:active {
+  background: #333333;
+}
+
   </style>
 </head>
 <body>
@@ -525,6 +633,45 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modalChat">
+  <div class="modal-card">
+    <button class="btn-close" onclick="closeModal('modalChat')">❌</button>
+    
+    <div class="modal-header-grid" style="border-bottom: 1px solid #222; padding-bottom: 8px;">
+      <div class="client-info-box" style="flex-direction: row; gap: 10px;">
+        <div class="client-avatar-large" style="width: 42px; height: 42px; font-size: 1.2rem;">👤</div>
+        <div>
+          <div style="font-size: 1rem; font-weight: bold; color: #ffffff;">@usuario</div>
+          <span style="font-size: 0.75rem; color: #00e676;">En línea</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-container" id="chatBox">
+      <div class="chat-bubble incoming">
+        <span>¡Hola! ¿Cuánto tarda mi orden? 🥐</span>
+        <span class="chat-time">10:14 AM ✓✓</span>
+      </div>
+
+      <div class="chat-bubble outgoing">
+        <span>¡Hola! Ya está en preparación, sale pronto 🛵</span>
+        <span class="chat-time">10:15 AM ✓✓</span>
+      </div>
+    </div>
+
+    <div class="chat-input-bar">
+      <input type="text" class="chat-input" id="chatMsgInput" placeholder="Escribe un mensaje...">
+      <button class="btn-send" onclick="enviarMensajeChat()">➤</button>
+    </div>
+
+    <div class="chat-footer-actions">
+      <button class="chat-action-btn" onclick="alert('Sección de Acciones Rápidas')">⚡ Acciones</button>
+      <button class="chat-action-btn" onclick="alert('Sección Orden')">📝 Orden</button>
+    </div>
+
+  </div>
+</div>
+
 <!-- Modal: Pendientes de Pago -->
 <div class="modal-overlay" id="modalPendiente">
   <div class="modal-card">
@@ -555,6 +702,8 @@
     </div>
 
     <button class="btn-main-green" onclick="confirmarPago()">Confirmar Pago</button>
+
+    <div class="client-avatar" onclick="openModal('modalChat')">👤</div>
   </div>
 </div>
 
@@ -611,6 +760,27 @@ function selectOption(btn) {
   
   // Activa el botón presionado
   btn.classList.add('selected');
+}
+
+function enviarMensajeChat() {
+  const input = document.getElementById('chatMsgInput');
+  const txt = input.value.trim();
+  if(!txt) return;
+
+  const chatBox = document.getElementById('chatBox');
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const msgHTML = `
+    <div class="chat-bubble outgoing">
+      <span>${txt}</span>
+      <span class="chat-time">${timeStr} ✓</span>
+    </div>
+  `;
+
+  chatBox.insertAdjacentHTML('beforeend', msgHTML);
+  input.value = '';
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
     // 3. Inicializar Mapa (Ubicación por defecto con Radio de 2km)
