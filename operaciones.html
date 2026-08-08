@@ -173,6 +173,22 @@
       z-index: 1;
     }
 
+    /* Estilo del Marcador Personalizado en el Mapa */
+    .map-order-marker {
+      background-color: #ffff00;
+      color: #000000;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      border: 3px solid #000;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.6);
+    }
+
     /* Footer */
     footer {
       display: grid;
@@ -655,7 +671,9 @@
     let selectedOrderId = null;
     let selectedClientId = null;
     let selectedPendingId = null;
+    let orderMarkersLayer = null; // Capa para guardar los marcadores de pedidos
 
+    // Notas: Las órdenes de App traen "lat" y "lng". Las ventas directas no.
     let activeOrders = [
       {
         id: 'ord-1',
@@ -668,7 +686,9 @@
         paymentMethod: '💳 Tarj.',
         specs: 'Tocar timbre fuerte',
         isDirectSale: false,
-        clientId: 'cli-1'
+        clientId: 'cli-1',
+        lat: 19.6885, // Coordenadas para el mapa
+        lng: -99.1110
       },
       {
         id: 'ord-2',
@@ -681,7 +701,9 @@
         paymentMethod: '🅰️ App',
         specs: 'Dejar en recepción',
         isDirectSale: false,
-        clientId: 'cli-2'
+        clientId: 'cli-2',
+        lat: 19.6850,
+        lng: -99.1145
       }
     ];
 
@@ -690,7 +712,6 @@
       { id: 'cli-2', name: 'Ana G.', user: '@ana_g', avatar: '👩', orderId: 'ord-2', chatHistory: [{ sender: 'client', text: '¿Tienen salsa extra?', time: '16:20' }] }
     ];
 
-    // Temporizador inicializado en segundos (1695s = 28m 15s)
     let pendingPayments = [
       { id: 'pago-1', user: '@luis_p', monto: '$120.00', comanda: '• 2x Cuerno Especial', secondsLeft: 1695 },
       { id: 'pago-2', user: '@marta_r', monto: '$85.00', comanda: '• 1x Cuerno Dulce + Café', secondsLeft: 1180 }
@@ -704,7 +725,6 @@
       return `${m}:${s} min`;
     }
 
-    // Intervalo continuo de 1 segundo para actualizar los contadores
     setInterval(() => {
       let needsRender = false;
       pendingPayments.forEach(pago => {
@@ -733,13 +753,15 @@
       if (isScheduleActive) {
         btn.classList.add('active');
         btn.innerText = 'ENTREGAS ACTIVAS';
+        // Aquí se enviará la señal al bot para abrir la tienda a los clientes
       } else {
         btn.classList.remove('active');
         btn.innerText = 'ENTREGAS DESACTIVADAS';
+        // Aquí se enviará la señal al bot para pausar nuevos pedidos
       }
     }
 
-    // --- RENDERIZADO DE INTERFAZ ---
+    // --- RENDERIZADO DE INTERFAZ Y MAPA ---
     function renderOrdersAndClients() {
       // 1. Renderizar Órdenes
       const ordersContainer = document.getElementById('ordersList');
@@ -765,6 +787,9 @@
 
       // 3. Renderizar Pagos Pendientes
       renderPendingGrid();
+
+      // 4. Sincronizar Marcadores del Mapa
+      actualizarMarcadoresMapa();
     }
 
     function renderPendingGrid() {
@@ -777,6 +802,36 @@
         card.innerHTML = `<div>${pago.user}</div><div style="font-size:0.75rem; color:#ff5252;">⏱ ${formatTimer(pago.secondsLeft)}</div>`;
         card.onclick = () => openPagoModal(pago.id);
         pendingGrid.appendChild(card);
+      });
+    }
+
+    function actualizarMarcadoresMapa() {
+      if (!map) return;
+      
+      // Limpiar capa anterior
+      if (orderMarkersLayer) {
+        map.removeLayer(orderMarkersLayer);
+      }
+      
+      orderMarkersLayer = L.layerGroup().addTo(map);
+
+      activeOrders.forEach(order => {
+        // Solo colocar si tiene coordenadas (Pedidos App) y no es venta directa
+        if (order.lat && order.lng && !order.isDirectSale) {
+          // Extraer solo el número de "Orden #1"
+          const orderNum = order.title.replace(/\D/g, ''); 
+          
+          const customIcon = L.divIcon({
+            className: '', // Vaciamos para usar nuestro CSS 100% puro
+            html: `<div class="map-order-marker">${orderNum}</div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16] // Para centrar el círculo en la coordenada exacta
+          });
+
+          L.marker([order.lat, order.lng], { icon: customIcon })
+            .addTo(orderMarkersLayer)
+            .bindPopup(`<b>${order.title}</b><br>${order.user}`);
+        }
       });
     }
 
@@ -804,7 +859,6 @@
       const addrGroup = document.getElementById('detailAddressGroup');
       const specsGroup = document.getElementById('detailSpecsGroup');
 
-      // Si es Venta Directa, ocultar Dirección y Especificaciones
       if (order.isDirectSale) {
         if (addrGroup) addrGroup.style.display = 'none';
         if (specsGroup) specsGroup.style.display = 'none';
@@ -822,7 +876,7 @@
       openModal('modalOrden');
     }
 
-    // Marca como entregado y borra tanto la orden como el cliente/chat al mismo tiempo
+    // Marca como entregado y borra orden, chat y MARCADOR del mapa simultáneamente
     function marcarEntregado() {
       if (selectedOrderId) {
         const order = activeOrders.find(o => o.id === selectedOrderId);
@@ -834,7 +888,7 @@
           }
           activeOrders = activeOrders.filter(o => o.id !== selectedOrderId);
         }
-        renderOrdersAndClients();
+        renderOrdersAndClients(); // Esto también borra el número del mapa automáticamente
         closeModal('modalOrden');
       }
     }
@@ -917,12 +971,14 @@
             user: pago.user,
             avatar: '💳',
             comanda: pago.comanda,
-            address: 'Calle Juárez #45, Col. Centro',
+            address: 'Calle Juárez #45, Col. Centro', // Simulado
             dateTime: getFechaHoraActual(),
             paymentMethod: '🅰️ App (SPEI)',
             specs: 'Verificado por SPEI',
             isDirectSale: false,
-            clientId: newClientId
+            clientId: newClientId,
+            lat: 19.6870, // Simulación de GPS para que se pinte en el mapa
+            lng: -99.1120
           });
 
           activeClients.unshift({
@@ -937,12 +993,12 @@
           pendingPayments = pendingPayments.filter(p => p.id !== selectedPendingId);
         }
 
-        renderOrdersAndClients();
+        renderOrdersAndClients(); // Pinta el nuevo círculo automáticamente en el mapa
         closeModal('modalPago');
       }
     }
 
-    // --- REGISTRAR VENTA ---
+    // --- REGISTRAR VENTA MANUAL ---
     function selectOption(button, groupId) {
       const parent = document.getElementById(groupId);
       if (!parent) return;
@@ -956,18 +1012,15 @@
       const precio = document.getElementById('ventaPrecio').value || 0;
       const clienteInput = document.getElementById('ventaCliente').value.trim() || '@mostrador';
 
-      // Obtener categoría seleccionada
       const catBtn = document.querySelector('#groupCategoria .btn-toggle.selected');
       const categoria = catBtn ? catBtn.innerText : 'Salado';
 
-      // Obtener método de pago seleccionado
       const metBtn = document.querySelector('#groupMetodo .btn-toggle.selected');
       const metodoSel = metBtn ? metBtn.innerText : '💵 Efec.';
 
       const orderNum = activeOrders.length + 1;
       const orderId = `ord-${Date.now()}`;
       const clientId = `cli-${Date.now()}`;
-
       const comandaTexto = `• ${cant}x Cuerno ${categoria} ($${precio * cant})`;
 
       const newOrder = {
@@ -978,7 +1031,7 @@
         comanda: comandaTexto,
         dateTime: getFechaHoraActual(),
         paymentMethod: metodoSel,
-        isDirectSale: true,
+        isDirectSale: true, // Esto evita que se pinte en el mapa
         clientId: clientId
       };
 
@@ -998,11 +1051,10 @@
 
       renderOrdersAndClients();
       closeModal('modalRegistroVenta');
-
       document.getElementById('ventaCliente').value = '';
     }
 
-    // --- EFECTO VISUAL DE CUERNO FLOTANTE ---
+    // --- EFECTOS Y UTILIDADES ---
     function lanzarCuernoFlotante() {
       for (let i = 0; i < 5; i++) {
         setTimeout(() => {
@@ -1012,7 +1064,6 @@
           croissant.style.left = `${Math.random() * 80 + 10}%`;
           croissant.style.bottom = '80px';
           document.body.appendChild(croissant);
-
           setTimeout(() => croissant.remove(), 1500);
         }, i * 150);
       }
@@ -1026,22 +1077,21 @@
     function getFechaHoraActual() {
       const now = new Date();
       const dateStr = now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const timeStr = getHoraActual();
-      return `${dateStr} - ${timeStr} hrs`;
+      return `${dateStr} - ${getHoraActual()} hrs`;
     }
 
     // --- INICIALIZAR MAPA LEAFLET ---
-    const map = L.map('map').setView([19.6865, -99.1126], 13);
+    const map = L.map('map').setView([19.6865, -99.1126], 15); // Zoom ajustado
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Marcador del Centro de Operaciones
+    // Marcador de tu Posición / Centro de Operaciones
     L.marker([19.6865, -99.1126]).addTo(map)
-      .bindPopup('<b>Centro de Operaciones</b><br>Que!Cuerno$')
+      .bindPopup('<b>Tu Ubicación Actual</b><br>Repartiendo Cuernitos')
       .openPopup();
 
-    // Inicializar listas al cargar la página
+    // Arrancar
     renderOrdersAndClients();
   </script>
 </body>
