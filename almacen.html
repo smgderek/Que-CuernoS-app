@@ -3,97 +3,384 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Almacén - Que!Cuerno$</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Centro de Operaciones - Almacén | Que!Cuerno$</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Impact&family=Inter:wght@400;600;700&display=swap');
-        .font-impact { font-family: 'Impact', sans-serif; letter-spacing: 0.05em; }
-        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #f3f4f6; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Impact', sans-serif, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0f0f0f;
+            color: #f3f3f3;
+            padding: 15px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #222;
+            padding-bottom: 15px;
+        }
+
+        header h1 {
+            color: #ffcc00;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-add {
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #e6b800;
+        }
+
+        /* Filtros por Categoría */
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .wh-filter {
+            background: #1a1a1a;
+            color: #aaa;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .wh-filter.active {
+            background: #222;
+            color: #ffcc00;
+            border-color: #ffcc00;
+        }
+
+        /* Cuadrícula de Tarjetas de Almacén */
+        .wh-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .wh-card {
+            background: #161616;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+        }
+
+        .wh-card:hover {
+            border-color: #444;
+        }
+
+        .wh-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .wh-title {
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .wh-category-tag {
+            font-size: 0.75rem;
+            background: #222;
+            color: #888;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Controles de Stock y Switches */
+        .wh-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #101010;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .stock-adjuster {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stock-btn {
+            background: #222;
+            color: #fff;
+            border: 1px solid #444;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s;
+        }
+
+        .stock-btn:active {
+            background: #333;
+        }
+
+        .stock-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffcc00;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        /* Interruptor de Agotado/Disponible (Switch) */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .switch-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
     </style>
 </head>
-<body class="p-4 md:p-6">
+<body>
 
-    <header class="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
-        <div>
-            <h1 class="text-3xl font-impact text-amber-500">🥐 CONTROL DE ALMACÉN</h1>
-            <p class="text-sm text-zinc-400">Gestión de insumos y stock en tiempo real</p>
-        </div>
-        <button onclick="abrirModalEntrada()" class="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold px-4 py-2 rounded-xl transition shadow-lg shadow-amber-500/20">
-            ➕ Registrar Entrada
-        </button>
+    <header>
+        <h1>📦 ALMACÉN "AL VUELO"</h1>
+        <button class="btn-add" onclick="addNewWarehouseItem()">+ Nuevo Insumo</button>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow">
-            <span class="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Total de Insumos</span>
-            <h2 class="text-2xl font-impact text-white mt-1">24 Ítems</h2>
-        </div>
-        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow">
-            <span class="text-xs text-amber-500 uppercase tracking-wider font-semibold">Stock Bajo (Alerta)</span>
-            <h2 class="text-2xl font-impact text-amber-400 mt-1">3 Insumos</h2>
-        </div>
-        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow">
-            <span class="text-xs text-red-500 uppercase tracking-wider font-semibold">Agotados</span>
-            <h2 class="text-2xl font-impact text-red-500 mt-1">0 Insumos</h2>
-        </div>
+    <div class="filter-container">
+        <button class="wh-filter active" onclick="filterWarehouse('all', event)">Todos</button>
+        <button class="wh-filter" onclick="filterWarehouse('salado', event)">Salados</button>
+        <button class="wh-filter" onclick="filterWarehouse('dulce', event)">Dulces</button>
+        <button class="wh-filter" onclick="filterWarehouse('especial', event)">Especiales</button>
+        <button class="wh-filter" onclick="filterWarehouse('bases', event)">Bases y Rellenos</button>
     </div>
 
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg">
-        <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
-            <h3 class="font-bold text-lg text-zinc-200">Inventario Actual</h3>
-            <input type="text" placeholder="Buscar insumo..." class="bg-zinc-800 border border-zinc-700 text-sm rounded-lg px-3 py-1.5 text-zinc-200 focus:outline-none focus:border-amber-500">
+    <div class="wh-grid" id="warehouseGrid">
+        
+        <div class="wh-card" data-category="salado">
+            <div>
+                <div class="wh-card-header">
+                    <span class="wh-title">Cuerno Jamón & Queso</span>
+                    <span class="wh-category-tag">Salado</span>
+                </div>
+            </div>
+            <div class="wh-controls">
+                <div class="stock-adjuster">
+                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
+                    <span class="stock-value">12</span>
+                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
+                </div>
+                <div class="switch-container">
+                    <span class="switch-label">Disp.</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="toggleAvailability(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-zinc-800/50 text-zinc-400 text-xs uppercase tracking-wider">
-                        <th class="p-3">Insumo</th>
-                        <th class="p-3">Categoría</th>
-                        <th class="p-3">Cantidad</th>
-                        <th class="p-3">Unidad</th>
-                        <th class="p-3">Estado</th>
-                        <th class="p-3 text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-800 text-sm">
-                    <tr class="hover:bg-zinc-800/30 transition">
-                        <td class="p-3 font-medium text-white">Masa para Cuernos</td>
-                        <td class="p-3 text-zinc-400">Panadería</td>
-                        <td class="p-3 text-zinc-200">45</td>
-                        <td class="p-3 text-zinc-400">Piezas</td>
-                        <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">Óptimo</span></td>
-                        <td class="p-3 text-right">
-                            <button class="text-amber-400 hover:text-amber-300 font-semibold text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg transition">Ajustar</button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-zinc-800/30 transition">
-                        <td class="p-3 font-medium text-white">Queso Cheddar Especial</td>
-                        <td class="p-3 text-zinc-400">Lácteos</td>
-                        <td class="p-3 text-amber-400 font-bold">3.5</td>
-                        <td class="p-3 text-zinc-400">Kg</td>
-                        <td class="p-3"><span class="bg-amber-500/10 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">Stock Bajo</span></td>
-                        <td class="p-3 text-right">
-                            <button class="text-amber-400 hover:text-amber-300 font-semibold text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg transition">Ajustar</button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-zinc-800/30 transition">
-                        <td class="p-3 font-medium text-white">Tocino Ahumado</td>
-                        <td class="p-3 text-zinc-400">Carnes</td>
-                        <td class="p-3 text-zinc-200">12</td>
-                        <td class="p-3 text-zinc-400">Kg</td>
-                        <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">Óptimo</span></td>
-                        <td class="p-3 text-right">
-                            <button class="text-amber-400 hover:text-amber-300 font-semibold text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg transition">Ajustar</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+        <div class="wh-card" data-category="dulce">
+            <div>
+                <div class="wh-card-header">
+                    <span class="wh-title">Cuerno Nutella & Fresa</span>
+                    <span class="wh-category-tag">Dulce</span>
+                </div>
+            </div>
+            <div class="wh-controls">
+                <div class="stock-adjuster">
+                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
+                    <span class="stock-value">8</span>
+                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
+                </div>
+                <div class="switch-container">
+                    <span class="switch-label">Disp.</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="toggleAvailability(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
         </div>
+
+        <div class="wh-card" data-category="especial">
+            <div>
+                <div class="wh-card-header">
+                    <span class="wh-title">Cuerno 4 Quesos & Tocino</span>
+                    <span class="wh-category-tag">Especial</span>
+                </div>
+            </div>
+            <div class="wh-controls">
+                <div class="stock-adjuster">
+                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
+                    <span class="stock-value">5</span>
+                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
+                </div>
+                <div class="switch-container">
+                    <span class="switch-label">Disp.</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="toggleAvailability(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="wh-card" data-category="bases">
+            <div>
+                <div class="wh-card-header">
+                    <span class="wh-title">Masa Hojaldre Base</span>
+                    <span class="wh-category-tag">Base</span>
+                </div>
+            </div>
+            <div class="wh-controls">
+                <div class="stock-adjuster">
+                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
+                    <span class="stock-value">25</span>
+                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
+                </div>
+                <div class="switch-container">
+                    <span class="switch-label">Disp.</span>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="toggleAvailability(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        function abrirModalEntrada() {
-            alert("Aquí se abrirá el modal para registrar la entrada de nuevos ingredientes al almacén.");
+        // Función para cambiar las unidades de stock de manera instantánea
+        function updateStock(button, change) {
+            const stockValueSpan = button.parentElement.querySelector('.stock-value');
+            let currentStock = parseInt(stockValueSpan.textContent);
+            
+            currentStock += change;
+            if (currentStock < 0) currentStock = 0; // Evitar números negativos
+            
+            stockValueSpan.textContent = currentStock;
+
+            // Aquí puedes conectar en el futuro con tu backend o API de Telegram para guardar cambios automáticos
+        }
+
+        // Función para activar o desactivar la disponibilidad (Agotado / Disponible)
+        function toggleAvailability(checkbox) {
+            const card = checkbox.closest('.wh-card');
+            if (checkbox.checked) {
+                card.style.opacity = "1";
+            } else {
+                card.style.opacity = "0.5"; // Atenúa la tarjeta si está agotado
+            }
+        }
+
+        // Función para filtrar tarjetas por categoría
+        function filterWarehouse(category, event) {
+            // Actualizar estilos activos de los botones de filtro
+            document.querySelectorAll('.wh-filter').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = "#1a1a1a";
+                btn.style.color = "#aaa";
+                btn.style.borderColor = "#333";
+            });
+            
+            event.target.classList.add('active');
+            event.target.style.background = "#222";
+            event.target.style.color = "#ffcc00";
+            event.target.style.borderColor = "#ffcc00";
+
+            // Filtrar las tarjetas del inventario
+            document.querySelectorAll('.wh-card').forEach(card => {
+                if(category === 'all' || card.dataset.category === category) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
+
+        // Función para registrar un nuevo insumo o producto
+        function addNewWarehouseItem() {
+            alert("Abriendo panel rápido para registrar nuevo insumo o producto directo al inventario en caliente.");
         }
     </script>
 </body>
