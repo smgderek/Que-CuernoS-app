@@ -18,8 +18,6 @@ const estadoNegocio = {
 
 const esAdmin = (ctx) => ctx.from?.id === ADMIN_ID;
 
-const path = require('path');
-
 bot.command('start', async (ctx) => {
   if (!esAdmin(ctx)) {
     return ctx.reply('👋 ¡Bienvenido a Que-CuernoS! La mini app abrirá pronto.');
