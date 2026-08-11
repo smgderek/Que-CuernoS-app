@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro de Operaciones - Almacén | Que!Cuerno$</title>
+    <title>Almacén - Que!Cuerno$</title>
     <style>
         * {
             box-sizing: border-box;
@@ -16,372 +16,282 @@
             background-color: #0f0f0f;
             color: #f3f3f3;
             padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #222;
-            padding-bottom: 15px;
-        }
-
-        header h1 {
+        /* 1. Nombre del Negocio */
+        .brand-title {
+            text-align: center;
             color: #ffcc00;
             font-size: 1.8rem;
+            margin-bottom: 15px;
             letter-spacing: 1px;
         }
 
-        .btn-add {
-            background: #ffcc00;
-            color: #000;
-            border: none;
-            padding: 10px 15px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-add:hover {
-            background: #e6b800;
-        }
-
-        /* Filtros por Categoría */
-        .filter-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .wh-filter {
-            background: #1a1a1a;
-            color: #aaa;
-            border: 1px solid #333;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .wh-filter.active {
-            background: #222;
-            color: #ffcc00;
-            border-color: #ffcc00;
-        }
-
-        /* Cuadrícula de Tarjetas de Almacén */
-        .wh-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .wh-card {
+        /* 2. Cuadro Grande de Ingredientes (con barra superior y flechas) */
+        .ingredients-box {
             background: #161616;
-            border: 1px solid #262626;
+            border: 2px solid #262626;
             border-radius: 12px;
             padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: border-color 0.2s;
+            margin-bottom: 15px;
         }
 
-        .wh-card:hover {
-            border-color: #444;
-        }
-
-        .wh-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-        }
-
-        .wh-title {
-            font-size: 1.2rem;
-            color: #fff;
-        }
-
-        .wh-category-tag {
-            font-size: 0.75rem;
-            background: #222;
-            color: #888;
-            padding: 3px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        /* Controles de Stock y Switches */
-        .wh-controls {
+        .ingredients-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #101010;
-            padding: 10px;
+            margin-bottom: 15px;
+            background: #222;
+            padding: 8px 12px;
             border-radius: 8px;
-            margin-top: 10px;
         }
 
-        .stock-adjuster {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .stock-btn {
-            background: #222;
-            color: #fff;
-            border: 1px solid #444;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            font-size: 1.1rem;
+        .arrow-btn {
+            background: none;
+            border: none;
+            color: #ffcc00;
+            font-size: 1.2rem;
             cursor: pointer;
+            padding: 0 10px;
+        }
+
+        .category-display {
+            font-size: 1rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Contenedor de círculos de emojis */
+        .circles-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            min-height: 90px;
+            align-items: center;
+        }
+
+        .ingredient-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.1s;
-        }
-
-        .stock-btn:active {
-            background: #333;
-        }
-
-        .stock-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffcc00;
-            min-width: 30px;
-            text-align: center;
-        }
-
-        /* Interruptor de Agotado/Disponible (Switch) */
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .switch-label {
-            font-size: 0.8rem;
-            color: #888;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
+            font-size: 1.5rem;
             cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #333;
-            transition: .3s;
-            border-radius: 24px;
+            transition: transform 0.1s;
+            border: 2px solid transparent;
         }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
+        .ingredient-circle:active {
+            transform: scale(0.92);
         }
 
-        input:checked + .slider {
-            background-color: #28a745;
+        /* Colores según stock solicitado */
+        .stock-black { background-color: #1a1a1a; border-color: #444; opacity: 0.5; } /* 0 */
+        .stock-red { background-color: #8b0000; border-color: #ff4d4d; }             /* 1 a 10 */
+        .stock-yellow { background-color: #b8860b; border-color: #ffcc00; }          /* 11 a 50 */
+        .stock-green { background-color: #006400; border-color: #28a745; }           /* 51 a 1000 */
+
+        /* 3. Rectángulo Superior de Estadísticas */
+        .stats-rectangle {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background 0.2s;
         }
 
-        input:checked + .slider:before {
-            transform: translateX(20px);
+        .stats-rectangle:hover {
+            background: #222;
+            border-color: #ffcc00;
+        }
+
+        .stats-title {
+            font-size: 1rem;
+            color: #ffcc00;
+        }
+
+        /* 4. Contenedores Inferiores (Dos cuadros lado a lado) */
+        .bottom-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .panel-box {
+            background: #161616;
+            border: 1px solid #262626;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .panel-title {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 5px;
+        }
+
+        .panel-content input, .panel-content select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .panel-content button {
+            width: 100%;
+            padding: 8px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>📦 ALMACÉN "AL VUELO"</h1>
-        <button class="btn-add" onclick="addNewWarehouseItem()">+ Nuevo Insumo</button>
-    </header>
+    <h1 class="brand-title">Que!Cuerno$</h1>
 
-    <div class="filter-container">
-        <button class="wh-filter active" onclick="filterWarehouse('all', event)">Todos</button>
-        <button class="wh-filter" onclick="filterWarehouse('salado', event)">Salados</button>
-        <button class="wh-filter" onclick="filterWarehouse('dulce', event)">Dulces</button>
-        <button class="wh-filter" onclick="filterWarehouse('especial', event)">Especiales</button>
-        <button class="wh-filter" onclick="filterWarehouse('bases', event)">Bases y Rellenos</button>
+    <div class="ingredients-box">
+        <div class="ingredients-header">
+            <button class="arrow-btn" onclick="changeCategory(-1)">◀</button>
+            <span class="category-display" id="categoryTitle">Todos</span>
+            <button class="arrow-btn" onclick="changeCategory(1)">▶</button>
+        </div>
+        <div class="circles-grid" id="circlesContainer">
+            </div>
     </div>
 
-    <div class="wh-grid" id="warehouseGrid">
+    <div class="stats-rectangle" onclick="openStatsModal()">
+        <span class="stats-title">📊 Ver Estadísticas de Uso de Ingredientes</span>
+    </div>
+
+    <div class="bottom-panels">
         
-        <div class="wh-card" data-category="salado">
-            <div>
-                <div class="wh-card-header">
-                    <span class="wh-title">Cuerno Jamón & Queso</span>
-                    <span class="wh-category-tag">Salado</span>
-                </div>
-            </div>
-            <div class="wh-controls">
-                <div class="stock-adjuster">
-                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
-                    <span class="stock-value">12</span>
-                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
-                </div>
-                <div class="switch-container">
-                    <span class="switch-label">Disp.</span>
-                    <label class="switch">
-                        <input type="checkbox" checked onchange="toggleAvailability(this)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
+        <div class="panel-box">
+            <div class="panel-title">💰 Registro de Compra</div>
+            <div class="panel-content">
+                <input type="text" id="compraIngrediente" placeholder="Ingrediente">
+                <input type="number" id="compraPrecio" placeholder="Precio ($)">
+                <input type="date" id="compraFecha">
+                <button onclick="registrarCompra()">Guardar Compra</button>
             </div>
         </div>
 
-        <div class="wh-card" data-category="dulce">
-            <div>
-                <div class="wh-card-header">
-                    <span class="wh-title">Cuerno Nutella & Fresa</span>
-                    <span class="wh-category-tag">Dulce</span>
-                </div>
-            </div>
-            <div class="wh-controls">
-                <div class="stock-adjuster">
-                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
-                    <span class="stock-value">8</span>
-                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
-                </div>
-                <div class="switch-container">
-                    <span class="switch-label">Disp.</span>
-                    <label class="switch">
-                        <input type="checkbox" checked onchange="toggleAvailability(this)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="wh-card" data-category="especial">
-            <div>
-                <div class="wh-card-header">
-                    <span class="wh-title">Cuerno 4 Quesos & Tocino</span>
-                    <span class="wh-category-tag">Especial</span>
-                </div>
-            </div>
-            <div class="wh-controls">
-                <div class="stock-adjuster">
-                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
-                    <span class="stock-value">5</span>
-                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
-                </div>
-                <div class="switch-container">
-                    <span class="switch-label">Disp.</span>
-                    <label class="switch">
-                        <input type="checkbox" checked onchange="toggleAvailability(this)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="wh-card" data-category="bases">
-            <div>
-                <div class="wh-card-header">
-                    <span class="wh-title">Masa Hojaldre Base</span>
-                    <span class="wh-category-tag">Base</span>
-                </div>
-            </div>
-            <div class="wh-controls">
-                <div class="stock-adjuster">
-                    <button class="stock-btn" onclick="updateStock(this, -1)">-</button>
-                    <span class="stock-value">25</span>
-                    <button class="stock-btn" onclick="updateStock(this, 1)">+</button>
-                </div>
-                <div class="switch-container">
-                    <span class="switch-label">Disp.</span>
-                    <label class="switch">
-                        <input type="checkbox" checked onchange="toggleAvailability(this)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
+        <div class="panel-box">
+            <div class="panel-title">⚙️ Gestor de Stock</div>
+            <div class="panel-content">
+                <input type="text" id="gestorNombre" placeholder="Nombre / Emoji">
+                <input type="number" id="gestorStock" placeholder="Cantidad Stock">
+                <button onclick="guardarStockMod()">Actualizar / Añadir</button>
             </div>
         </div>
 
     </div>
 
     <script>
-        // Función para cambiar las unidades de stock de manera instantánea
-        function updateStock(button, change) {
-            const stockValueSpan = button.parentElement.querySelector('.stock-value');
-            let currentStock = parseInt(stockValueSpan.textContent);
-            
-            currentStock += change;
-            if (currentStock < 0) currentStock = 0; // Evitar números negativos
-            
-            stockValueSpan.textContent = currentStock;
+        // Base de datos simulada de ingredientes con stock y categorías
+        let ingredientes = [
+            { nombre: "Jamón", emoji: "🥓", stock: 0, categoria: "salado" },
+            { nombre: "Queso", emoji: "🧀", stock: 5, categoria: "salado" },
+            { nombre: "Nutella", emoji: "🍫", stock: 25, categoria: "dulce" },
+            { nombre: "Fresa", emoji: "🍓", stock: 80, categoria: "dulce" },
+            { nombre: "Tocino", emoji: "🍖", stock: 120, categoria: "salado" }
+        ];
 
-            // Aquí puedes conectar en el futuro con tu backend o API de Telegram para guardar cambios automáticos
+        let categorias = ["todos", "salados", "dulces"];
+        let categoriaIndex = 0;
+
+        // Función para determinar el color según los rangos exactos que pediste:
+        // Negro (0), Rojo (1-10), Amarillo (11-50), Verde (51-1000)
+        function getStockClass(stock) {
+            if (stock === 0) return "stock-black";
+            if (stock >= 1 && stock <= 10) return "stock-red";
+            if (stock >= 11 && stock <= 50) return "stock-yellow";
+            if (stock >= 51) return "stock-green";
+            return "stock-black";
         }
 
-        // Función para activar o desactivar la disponibilidad (Agotado / Disponible)
-        function toggleAvailability(checkbox) {
-            const card = checkbox.closest('.wh-card');
-            if (checkbox.checked) {
-                card.style.opacity = "1";
-            } else {
-                card.style.opacity = "0.5"; // Atenúa la tarjeta si está agotado
-            }
-        }
+        // Renderizar círculos en el cuadro grande
+        function renderIngredients() {
+            const container = document.getElementById("circlesContainer");
+            container.innerHTML = "";
 
-        // Función para filtrar tarjetas por categoría
-        function filterWarehouse(category, event) {
-            // Actualizar estilos activos de los botones de filtro
-            document.querySelectorAll('.wh-filter').forEach(btn => {
-                btn.classList.remove('active');
-                btn.style.background = "#1a1a1a";
-                btn.style.color = "#aaa";
-                btn.style.borderColor = "#333";
-            });
-            
-            event.target.classList.add('active');
-            event.target.style.background = "#222";
-            event.target.style.color = "#ffcc00";
-            event.target.style.borderColor = "#ffcc00";
+            let catActual = categorias[categoriaIndex];
+            document.getElementById("categoryTitle").textContent = catActual.toUpperCase();
 
-            // Filtrar las tarjetas del inventario
-            document.querySelectorAll('.wh-card').forEach(card => {
-                if(category === 'all' || card.dataset.category === category) {
-                    card.style.display = "flex";
-                } else {
-                    card.style.display = "none";
+            ingredientes.forEach(ing => {
+                if (catActual === "todos" || ing.categoria === catActual.slice(0, -1)) {
+                    const circle = document.createElement("div");
+                    circle.className = `ingredient-circle ${getStockClass(ing.stock)}`;
+                    circle.innerHTML = ing.emoji;
+                    circle.title = `${ing.nombre}: ${ing.stock} unidades`;
+                    circle.onclick = () => alert(`Detalles:\nIngrediente: ${ing.nombre}\nStock actual: ${ing.stock} unidades`);
+                    container.appendChild(circle);
                 }
             });
         }
 
-        // Función para registrar un nuevo insumo o producto
-        function addNewWarehouseItem() {
-            alert("Abriendo panel rápido para registrar nuevo insumo o producto directo al inventario en caliente.");
+        // Cambiar categoría con las flechas laterales
+        function changeCategory(direction) {
+            categoriaIndex += direction;
+            if (categoriaIndex < 0) categoriaIndex = categorias.length - 1;
+            if (categoriaIndex >= categorias.length) categoriaIndex = 0;
+            renderIngredients();
         }
+
+        // Funciones básicas para los cuadros inferiores
+        function registrarCompra() {
+            const ing = document.getElementById("compraIngrediente").value;
+            const precio = document.getElementById("compraPrecio").value;
+            const fecha = document.getElementById("compraFecha").value;
+            if(!ing || !precio) {
+                alert("Por favor llena los datos de compra.");
+                return;
+            }
+            alert(`Compra registrada:\n${ing} - $${precio} (${fecha || 'Fecha actual'})`);
+        }
+
+        function guardarStockMod() {
+            const nombre = document.getElementById("gestorNombre").value;
+            const stock = parseInt(document.getElementById("gestorStock").value);
+            if(!nombre || isNaN(stock)) {
+                alert("Ingresa nombre y cantidad válida.");
+                return;
+            }
+            // Buscar si ya existe para actualizarlo o agregarlo
+            let existe = ingredientes.find(i => i.nombre.toLowerCase() === nombre.toLowerCase());
+            if(existe) {
+                existe.stock = stock;
+            } else {
+                ingredientes.push({ nombre: nombre, emoji: "📦", stock: stock, categoria: "salado" });
+            }
+            renderIngredients();
+            alert("Stock actualizado correctamente.");
+        }
+
+        function openStatsModal() {
+            alert("Pantalla desplegable de Estadísticas de Uso de Ingredientes (Fechas de entrada/salida).");
+        }
+
+        // Inicializar vista
+        renderIngredients();
     </script>
 </body>
 </html>
