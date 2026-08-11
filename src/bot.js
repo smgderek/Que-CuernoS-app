@@ -18,6 +18,8 @@ const estadoNegocio = {
 
 const esAdmin = (ctx) => ctx.from?.id === ADMIN_ID;
 
+const path = require('path');
+
 bot.command('start', async (ctx) => {
   if (!esAdmin(ctx)) {
     return ctx.reply('👋 ¡Bienvenido a Que-CuernoS! La mini app abrirá pronto.');
@@ -117,7 +119,7 @@ app.get('/operaciones.html', (req, res) => {
 });
 
 app.get('/almacen.html', (req, res) => {
-    res.sendFile(path.join('almacen.html'));
+    res.sendFile(path.join(__dirname, 'almacen.html'));
 });
 
 app.get('/', (req, res) => {
