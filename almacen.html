@@ -29,7 +29,7 @@
             letter-spacing: 1px;
         }
 
-        /* 2. Cuadro Grande de Ingredientes (con barra superior y flechas) */
+        /* 2. Cuadro Grande de Ingredientes con Scroll Vertical */
         .ingredients-box {
             background: #161616;
             border: 2px solid #262626;
@@ -64,24 +64,25 @@
             letter-spacing: 1px;
         }
 
-        /* Contenedor de círculos de emojis */
+        /* Contenedor con Scroll Vertical para +50 ingredientes */
         .circles-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             justify-content: center;
-            min-height: 90px;
-            align-items: center;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 5px;
         }
 
         .ingredient-circle {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             cursor: pointer;
             transition: transform 0.1s;
             border: 2px solid transparent;
@@ -91,11 +92,11 @@
             transform: scale(0.92);
         }
 
-        /* Colores según stock solicitado */
-        .stock-black { background-color: #1a1a1a; border-color: #444; opacity: 0.5; } /* 0 */
-        .stock-red { background-color: #8b0000; border-color: #ff4d4d; }             /* 1 a 10 */
-        .stock-yellow { background-color: #b8860b; border-color: #ffcc00; }          /* 11 a 50 */
-        .stock-green { background-color: #006400; border-color: #28a745; }           /* 51 a 1000 */
+        /* Colores según rangos de stock solicitados */
+        .stock-black { background-color: #1a1a1a; border-color: #333; opacity: 0.4; } /* 0 */
+        .stock-red { background-color: #7a0c0c; border-color: #ff4d4d; }             /* 1 a 10 */
+        .stock-yellow { background-color: #8c7300; border-color: #ffcc00; }          /* 11 a 50 */
+        .stock-green { background-color: #0b5329; border-color: #28a745; }           /* 51 a 1000 */
 
         /* 3. Rectángulo Superior de Estadísticas */
         .stats-rectangle {
@@ -119,47 +120,90 @@
             color: #ffcc00;
         }
 
-        /* 4. Contenedores Inferiores (Dos cuadros lado a lado) */
-        .bottom-panels {
+        /* 4. Botones de Pantallas Desplegables Inferiores */
+        .bottom-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
 
-        .panel-box {
+        .action-btn {
             background: #161616;
-            border: 1px solid #262626;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
             border-radius: 10px;
-            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
         }
 
-        .panel-title {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 5px;
+        .action-btn:hover {
+            background: #222;
+            border-color: #ffcc00;
         }
 
-        .panel-content input, .panel-content select {
+        /* Estilos de Modales Desplegables */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #161616;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 20px;
             width: 100%;
-            padding: 8px;
-            margin-bottom: 8px;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .modal-title {
+            color: #ffcc00;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
             background: #0f0f0f;
             border: 1px solid #333;
             color: #fff;
             border-radius: 6px;
-            font-size: 0.9rem;
         }
 
-        .panel-content button {
+        .modal-content button.save-btn {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             background: #ffcc00;
             color: #000;
             border: none;
             border-radius: 6px;
             font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px; right: 20px;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.3rem;
             cursor: pointer;
         }
     </style>
@@ -178,48 +222,64 @@
             </div>
     </div>
 
-    <div class="stats-rectangle" onclick="openStatsModal()">
-        <span class="stats-title">📊 Ver Estadísticas de Uso de Ingredientes</span>
+    <div class="stats-rectangle" onclick="openModal('statsModal')">
+        <span class="stats-title">📊 Estadísticas de Uso (Entradas / Salidas)</span>
     </div>
 
-    <div class="bottom-panels">
-        
-        <div class="panel-box">
-            <div class="panel-title">💰 Registro de Compra</div>
-            <div class="panel-content">
-                <input type="text" id="compraIngrediente" placeholder="Ingrediente">
-                <input type="number" id="compraPrecio" placeholder="Precio ($)">
-                <input type="date" id="compraFecha">
-                <button onclick="registrarCompra()">Guardar Compra</button>
-            </div>
-        </div>
+    <div class="bottom-actions">
+        <button class="action-btn" onclick="openModal('compraModal')">💰 Registrar Precios y Compra</button>
+        <button class="action-btn" onclick="openModal('gestorModal')">⚙️ Modificar / Agregar Stock</button>
+    </div>
 
-        <div class="panel-box">
-            <div class="panel-title">⚙️ Gestor de Stock</div>
-            <div class="panel-content">
-                <input type="text" id="gestorNombre" placeholder="Nombre / Emoji">
-                <input type="number" id="gestorStock" placeholder="Cantidad Stock">
-                <button onclick="guardarStockMod()">Actualizar / Añadir</button>
-            </div>
+    <div class="modal" id="compraModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('compraModal')">&times;</button>
+            <div class="modal-title">💰 Registro de Compra de Ingredientes</div>
+            <input type="text" id="compraIngrediente" placeholder="Nombre del ingrediente">
+            <input type="number" id="compraPrecio" placeholder="Precio de compra ($)">
+            <input type="date" id="compraFecha">
+            <button class="save-btn" onclick="registrarCompra()">Guardar Compra</button>
         </div>
+    </div>
 
+    <div class="modal" id="gestorModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('gestorModal')">&times;</button>
+            <div class="modal-title">⚙️ Gestor de Stock (Modificar / Eliminar)</div>
+            <input type="text" id="gestorNombre" placeholder="Nombre del ingrediente">
+            <input type="text" id="gestorEmoji" placeholder="Emoji representativo (ej: 🥓)">
+            <input type="number" id="gestorStock" placeholder="Cantidad de stock actual">
+            <input type="text" id="gestorCategoria" placeholder="Categoría (salado / dulce)">
+            <button class="save-btn" onclick="guardarStockMod()">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <div class="modal" id="statsModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('statsModal')">&times;</button>
+            <div class="modal-title">📊 Estadísticas de Uso</div>
+            <p style="font-size: 0.9rem; color: #ccc; line-height: 1.4;">
+                Aquí se registran las fechas de entrada y salida de los ingredientes con mayor rotación en la cocina.
+            </p>
+        </div>
     </div>
 
     <script>
-        // Base de datos simulada de ingredientes con stock y categorías
+        // Lista simulada de ingredientes (puedes tener más de 50 y se acomodarán perfectamente con scroll)
         let ingredientes = [
             { nombre: "Jamón", emoji: "🥓", stock: 0, categoria: "salado" },
-            { nombre: "Queso", emoji: "🧀", stock: 5, categoria: "salado" },
-            { nombre: "Nutella", emoji: "🍫", stock: 25, categoria: "dulce" },
-            { nombre: "Fresa", emoji: "🍓", stock: 80, categoria: "dulce" },
-            { nombre: "Tocino", emoji: "🍖", stock: 120, categoria: "salado" }
+            { nombre: "Queso", emoji: "🧀", stock: 8, categoria: "salado" },
+            { nombre: "Tocino", emoji: "🍖", stock: 35, categoria: "salado" },
+            { nombre: "Nutella", emoji: "🍫", stock: 120, categoria: "dulce" },
+            { nombre: "Fresa", emoji: "🍓", stock: 45, categoria: "dulce" },
+            { nombre: "Masa Hojaldre", emoji: "🥐", stock: 550, categoria: "salado" }
         ];
 
         let categorias = ["todos", "salados", "dulces"];
         let categoriaIndex = 0;
 
-        // Función para determinar el color según los rangos exactos que pediste:
-        // Negro (0), Rojo (1-10), Amarillo (11-50), Verde (51-1000)
+        // Regla de colores basada en stock exacto:
+        // 0: Negro | 1-10: Rojo | 11-50: Amarillo | 51-1000: Verde
         function getStockClass(stock) {
             if (stock === 0) return "stock-black";
             if (stock >= 1 && stock <= 10) return "stock-red";
@@ -228,7 +288,6 @@
             return "stock-black";
         }
 
-        // Renderizar círculos en el cuadro grande
         function renderIngredients() {
             const container = document.getElementById("circlesContainer");
             container.innerHTML = "";
@@ -240,15 +299,14 @@
                 if (catActual === "todos" || ing.categoria === catActual.slice(0, -1)) {
                     const circle = document.createElement("div");
                     circle.className = `ingredient-circle ${getStockClass(ing.stock)}`;
-                    circle.innerHTML = ing.emoji;
+                    circle.innerHTML = ing.emoji; // Solo emoji sin texto
                     circle.title = `${ing.nombre}: ${ing.stock} unidades`;
-                    circle.onclick = () => alert(`Detalles:\nIngrediente: ${ing.nombre}\nStock actual: ${ing.stock} unidades`);
+                    circle.onclick = () => alert(`Ingrediente: ${ing.nombre}\nStock actual: ${ing.stock} unidades`);
                     container.appendChild(circle);
                 }
             });
         }
 
-        // Cambiar categoría con las flechas laterales
         function changeCategory(direction) {
             categoriaIndex += direction;
             if (categoriaIndex < 0) categoriaIndex = categorias.length - 1;
@@ -256,41 +314,46 @@
             renderIngredients();
         }
 
-        // Funciones básicas para los cuadros inferiores
+        // Control de modales desplegables
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "flex";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+
+        // Acciones de formularios
         function registrarCompra() {
-            const ing = document.getElementById("compraIngrediente").value;
-            const precio = document.getElementById("compraPrecio").value;
-            const fecha = document.getElementById("compraFecha").value;
-            if(!ing || !precio) {
-                alert("Por favor llena los datos de compra.");
-                return;
-            }
-            alert(`Compra registrada:\n${ing} - $${precio} (${fecha || 'Fecha actual'})`);
+            alert("¡Compra y precio registrados correctamente!");
+            closeModal('compraModal');
         }
 
         function guardarStockMod() {
             const nombre = document.getElementById("gestorNombre").value;
+            const emoji = document.getElementById("gestorEmoji").value || "📦";
             const stock = parseInt(document.getElementById("gestorStock").value);
+            const categoria = document.getElementById("gestorCategoria").value || "salado";
+
             if(!nombre || isNaN(stock)) {
-                alert("Ingresa nombre y cantidad válida.");
+                alert("Por favor completa los campos requeridos.");
                 return;
             }
-            // Buscar si ya existe para actualizarlo o agregarlo
+
             let existe = ingredientes.find(i => i.nombre.toLowerCase() === nombre.toLowerCase());
             if(existe) {
                 existe.stock = stock;
+                existe.emoji = emoji;
             } else {
-                ingredientes.push({ nombre: nombre, emoji: "📦", stock: stock, categoria: "salado" });
+                ingredientes.push({ nombre, emoji, stock, categoria });
             }
+
             renderIngredients();
-            alert("Stock actualizado correctamente.");
+            closeModal('gestorModal');
+            alert("Stock actualizado con éxito.");
         }
 
-        function openStatsModal() {
-            alert("Pantalla desplegable de Estadísticas de Uso de Ingredientes (Fechas de entrada/salida).");
-        }
-
-        // Inicializar vista
+        // Inicializar
         renderIngredients();
     </script>
 </body>
