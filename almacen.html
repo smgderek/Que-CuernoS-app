@@ -2,390 +2,99 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Almacén & Inventario - Que-CuernoS</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Almacén - Que!Cuerno$</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-color: var(--tg-theme-bg-color, #f4f6f8);
-            --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
-            --text-color: var(--tg-theme-text-color, #1c1e21);
-            --hint-color: var(--tg-theme-hint-color, #8e8e93);
-            --accent-color: var(--tg-theme-button-color, #ff6b00);
-            --accent-text: var(--tg-theme-button-text-color, #ffffff);
-            --status-green: #2ecc71;
-            --status-yellow: #f1c40f;
-            --status-red: #e74c3c;
-            --border-radius: 12px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 12px;
-            padding-bottom: 30px;
-        }
-
-        /* Encabezado */
-        header { margin-bottom: 15px; }
-        header h1 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        header p { font-size: 13px; color: var(--hint-color); margin-top: 2px; }
-
-        /* Buscador */
-        .search-container { margin-bottom: 12px; }
-        .search-input {
-            width: 100%; padding: 12px 16px; border-radius: var(--border-radius);
-            border: 1px solid rgba(0,0,0,0.08); background-color: var(--card-bg);
-            color: var(--text-color); font-size: 15px; outline: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-
-        /* Filtros horizontales */
-        .categories-scroll {
-            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;
-            margin-bottom: 15px; scrollbar-width: none;
-        }
-        .categories-scroll::-webkit-scrollbar { display: none; }
-        .cat-chip {
-            padding: 8px 14px; background-color: var(--card-bg); border-radius: 20px;
-            font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--hint-color);
-            border: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: all 0.2s ease;
-        }
-        .cat-chip.active {
-            background-color: var(--accent-color); color: var(--accent-text); border-color: var(--accent-color);
-        }
-
-        /* Métricas rápidas */
-        .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .stat-card {
-            background-color: var(--card-bg); padding: 10px; border-radius: var(--border-radius);
-            text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .stat-card .number { font-size: 18px; font-weight: 700; }
-        .stat-card .label { font-size: 11px; color: var(--hint-color); }
-        .stat-card.disponible .number { color: var(--status-green); }
-        .stat-card.poco .number { color: var(--status-yellow); }
-        .stat-card.agotado .number { color: var(--status-red); }
-
-        /* Lista de Secciones/Pasos */
-        .step-section { margin-bottom: 20px; }
-        .step-title {
-            font-size: 14px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.5px; color: var(--hint-color); margin-bottom: 8px; padding-left: 4px;
-        }
-
-        /* Tarjeta de Producto */
-        .item-card {
-            background-color: var(--card-bg); border-radius: var(--border-radius);
-            padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center;
-            justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            border-left: 5px solid var(--status-green); transition: border-color 0.3s ease;
-        }
-        .item-card.status-poco { border-left-color: var(--status-yellow); }
-        .item-card.status-agotado { border-left-color: var(--status-red); opacity: 0.75; }
-        .item-info { flex-grow: 1; padding-right: 10px; }
-        .item-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
-        .item-subcat { font-size: 12px; color: var(--hint-color); }
-
-        /* Acciones en la tarjeta */
-        .item-actions { display: flex; align-items: center; gap: 10px; }
-        .status-select {
-            padding: 5px 8px; border-radius: 8px; font-size: 12px; font-weight: 600;
-            border: 1px solid rgba(0,0,0,0.1); background-color: var(--bg-color);
-            color: var(--text-color); outline: none;
-        }
-
-        /* Toggle Button */
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--status-red); transition: .3s; border-radius: 24px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-            background-color: white; transition: .3s; border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--status-green); }
-        input:checked + .slider:before { transform: translateX(20px); }
-        .empty-state { text-align: center; padding: 30px 10px; color: var(--hint-color); font-size: 14px; }
+        @import url('https://fonts.googleapis.com/css2?family=Impact&family=Inter:wght@400;600;700&display=swap');
+        .font-impact { font-family: 'Impact', sans-serif; letter-spacing: 0.05em; }
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #f3f4f6; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-6">
 
-    <header>
-        <h1>📦 Almacén & Inventario</h1>
-        <p>Control rápido de insumos para Que-CuernoS</p>
+    <header class="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4">
+        <div>
+            <h1 class="text-3xl font-impact text-amber-500">🥐 CONTROL DE ALMACÉN</h1>
+            <p class="text-sm text-zinc-400">Gestión de insumos y stock en tiempo real</p>
+        </div>
+        <button onclick="abrirModalEntrada()" class="bg-amber-500 hover:bg-amber-600 text-zinc-950 font-bold px-4 py-2 rounded-xl transition shadow-lg shadow-amber-500/20">
+            ➕ Registrar Entrada
+        </button>
     </header>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar insumo o ingrediente..." oninput="filtrarInventario()">
-    </div>
-
-    <div class="categories-scroll" id="categoriesContainer"></div>
-
-    <div class="stats-bar">
-        <div class="stat-card disponible">
-            <div class="number" id="countDisponible">0</div>
-            <div class="label">Disponibles</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow">
+            <span class="text-xs text-zinc-400 uppercase tracking-wider font-semibold">Total de Insumos</span>
+            <h2 class="text-2xl font-impact text-white mt-1">24 Ítems</h2>
         </div>
-        <div class="stat-card poco">
-            <div class="number" id="countPoco">0</div>
-            <div class="label">Poco Stock</div>
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow">
+            <span class="text-xs text-amber-500 uppercase tracking-wider font-semibold">Stock Bajo (Alerta)</span>
+            <h2 class="text-2xl font-impact text-amber-400 mt-1">3 Insumos</h2>
         </div>
-        <div class="stat-card agotado">
-            <div class="number" id="countAgotado">0</div>
-            <div class="label">Agotados</div>
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl shadow">
+            <span class="text-xs text-red-500 uppercase tracking-wider font-semibold">Agotados</span>
+            <h2 class="text-2xl font-impact text-red-500 mt-1">0 Insumos</h2>
         </div>
     </div>
 
-    <div id="inventoryList"></div>
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg">
+        <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+            <h3 class="font-bold text-lg text-zinc-200">Inventario Actual</h3>
+            <input type="text" placeholder="Buscar insumo..." class="bg-zinc-800 border border-zinc-700 text-sm rounded-lg px-3 py-1.5 text-zinc-200 focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-zinc-800/50 text-zinc-400 text-xs uppercase tracking-wider">
+                        <th class="p-3">Insumo</th>
+                        <th class="p-3">Categoría</th>
+                        <th class="p-3">Cantidad</th>
+                        <th class="p-3">Unidad</th>
+                        <th class="p-3">Estado</th>
+                        <th class="p-3 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-800 text-sm">
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="p-3 font-medium text-white">Masa para Cuernos</td>
+                        <td class="p-3 text-zinc-400">Panadería</td>
+                        <td class="p-3 text-zinc-200">45</td>
+                        <td class="p-3 text-zinc-400">Piezas</td>
+                        <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">Óptimo</span></td>
+                        <td class="p-3 text-right">
+                            <button class="text-amber-400 hover:text-amber-300 font-semibold text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg transition">Ajustar</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="p-3 font-medium text-white">Queso Cheddar Especial</td>
+                        <td class="p-3 text-zinc-400">Lácteos</td>
+                        <td class="p-3 text-amber-400 font-bold">3.5</td>
+                        <td class="p-3 text-zinc-400">Kg</td>
+                        <td class="p-3"><span class="bg-amber-500/10 text-amber-400 text-xs px-2.5 py-1 rounded-full font-semibold">Stock Bajo</span></td>
+                        <td class="p-3 text-right">
+                            <button class="text-amber-400 hover:text-amber-300 font-semibold text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg transition">Ajustar</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-zinc-800/30 transition">
+                        <td class="p-3 font-medium text-white">Tocino Ahumado</td>
+                        <td class="p-3 text-zinc-400">Carnes</td>
+                        <td class="p-3 text-zinc-200">12</td>
+                        <td class="p-3 text-zinc-400">Kg</td>
+                        <td class="p-3"><span class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-semibold">Óptimo</span></td>
+                        <td class="p-3 text-right">
+                            <button class="text-amber-400 hover:text-amber-300 font-semibold text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg transition">Ajustar</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <script>
-        // Inicializar Telegram WebApp
-        const tg = window.Telegram ? window.Telegram.WebApp : null;
-        if (tg) {
-            tg.expand();
-            tg.ready();
+        function abrirModalEntrada() {
+            alert("Aquí se abrirá el modal para registrar la entrada de nuevos ingredientes al almacén.");
         }
-
-        // BASE DE DATOS DE INVENTARIO BASADA EN TU MENÚ EXACTO
-        const inventarioData = [
-            // Paso 1: Panes
-            { id: 1, paso: "Paso 1: Panes", subcat: "Pan", nombre: "Pan Integral", status: "disponible" },
-            { id: 2, paso: "Paso 1: Panes", subcat: "Pan", nombre: "Pan Ajonjolí", status: "disponible" },
-            { id: 3, paso: "Paso 1: Panes", subcat: "Pan", nombre: "Pan Mantequilla", status: "disponible" },
-
-            // Paso 2 y 3: Bases Saladas (Quesos)
-            { id: 4, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Fresco", nombre: "Queso Panela", status: "disponible" },
-            { id: 5, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Fresco", nombre: "Queso Canasto", status: "disponible" },
-            { id: 6, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Fresco", nombre: "Mozzarella Fresco", status: "disponible" },
-            { id: 7, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Fresco", nombre: "Queso Doble Crema", status: "disponible" },
-            { id: 8, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Madurar/Fundir", nombre: "Queso Gouda", status: "disponible" },
-            { id: 9, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Madurar/Fundir", nombre: "Queso Manchego", status: "disponible" },
-            { id: 10, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Madurar/Fundir", nombre: "Queso Cheddar", status: "disponible" },
-            { id: 11, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Madurar/Fundir", nombre: "Queso Suizo", status: "disponible" },
-            { id: 12, paso: "Paso 2/3: Bases Saladas", subcat: "Queso Madurar/Fundir", nombre: "Queso Provolone", status: "disponible" },
-
-            // Paso 2 y 3: Bases Dulces
-            { id: 13, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Crema de Avellanas con Cacao", status: "disponible" },
-            { id: 14, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Crema de Cacahuate", status: "disponible" },
-            { id: 15, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Mantequilla de Almendras", status: "disponible" },
-            { id: 16, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Mazapán Untable", status: "disponible" },
-            { id: 17, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Crema Pistacho", status: "disponible" },
-            { id: 18, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Cajeta", status: "disponible" },
-            { id: 19, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Dulce de Leche", status: "disponible" },
-            { id: 20, paso: "Paso 2/3: Bases Dulces", subcat: "Untable Dulce", nombre: "Queso Crema Endulzado", status: "disponible" },
-            { id: 21, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Fresa", status: "disponible" },
-            { id: 22, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Frutos Rojos", status: "disponible" },
-            { id: 23, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Durazno", status: "disponible" },
-            { id: 24, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Piña", status: "disponible" },
-            { id: 25, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Zarzamora", status: "disponible" },
-            { id: 26, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Higo", status: "disponible" },
-            { id: 27, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Naranja", status: "disponible" },
-            { id: 28, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Chabacano", status: "disponible" },
-            { id: 29, paso: "Paso 2/3: Bases Dulces", subcat: "Mermelada", nombre: "Mermelada de Mango", status: "disponible" },
-            { id: 30, paso: "Paso 2/3: Bases Dulces", subcat: "Especialidad Dulce", nombre: "Curd de Limón", status: "disponible" },
-            { id: 31, paso: "Paso 2/3: Bases Dulces", subcat: "Especialidad Dulce", nombre: "Mantequilla de Manzana", status: "disponible" },
-
-            // Paso 4: Rellenos Salados
-            { id: 32, paso: "Paso 4: Rellenos Salados", subcat: "Carnes Frías", nombre: "Jamón (Pavo/Pierna/York)", status: "disponible" },
-            { id: 33, paso: "Paso 4: Rellenos Salados", subcat: "Carnes Frías", nombre: "Jamón Serrano", status: "disponible" },
-            { id: 34, paso: "Paso 4: Rellenos Salados", subcat: "Carnes Frías", nombre: "Salami", status: "disponible" },
-            { id: 35, paso: "Paso 4: Rellenos Salados", subcat: "Carnes Frías", nombre: "Pastrami", status: "disponible" },
-            { id: 36, paso: "Paso 4: Rellenos Salados", subcat: "Carnes Frías", nombre: "Tocino Crujiente", status: "disponible" },
-            { id: 37, paso: "Paso 4: Rellenos Salados", subcat: "Aves", nombre: "Pechuga de Pollo", status: "disponible" },
-            { id: 38, paso: "Paso 4: Rellenos Salados", subcat: "Aves", nombre: "Pechuga de Pavo", status: "disponible" },
-            { id: 39, paso: "Paso 4: Rellenos Salados", subcat: "Pescados / Mariscos", nombre: "Ensalada de Atún", status: "disponible" },
-            { id: 40, paso: "Paso 4: Rellenos Salados", subcat: "Pescados / Mariscos", nombre: "Salmón Ahumado", status: "disponible" },
-            { id: 41, paso: "Paso 4: Rellenos Salados", subcat: "Pescados / Mariscos", nombre: "Camarones Salteados", status: "disponible" },
-            { id: 42, paso: "Paso 4: Rellenos Salados", subcat: "Huevos", nombre: "Huevo Revuelto", status: "disponible" },
-            { id: 43, paso: "Paso 4: Rellenos Salados", subcat: "Huevos", nombre: "Huevo Estrellado", status: "disponible" },
-            { id: 44, paso: "Paso 4: Rellenos Salados", subcat: "Huevos", nombre: "Omelette", status: "disponible" },
-            { id: 45, paso: "Paso 4: Rellenos Salados", subcat: "Huevos", nombre: "Ensalada de Huevo Duro", status: "disponible" },
-            { id: 46, paso: "Paso 4: Rellenos Salados", subcat: "Proteína Vegetal", nombre: "Tofu Asado", status: "disponible" },
-            { id: 47, paso: "Paso 4: Rellenos Salados", subcat: "Proteína Vegetal", nombre: "Tempeh Marinado", status: "disponible" },
-            { id: 48, paso: "Paso 4: Rellenos Salados", subcat: "Proteína Vegetal", nombre: "Falafel", status: "disponible" },
-            { id: 49, paso: "Paso 4: Rellenos Salados", subcat: "Proteína Vegetal", nombre: "Medallones de Legumbres", status: "disponible" },
-            { id: 50, paso: "Paso 4: Rellenos Salados", subcat: "Cerdo", nombre: "Carne Enchilada", status: "disponible" },
-            { id: 51, paso: "Paso 4: Rellenos Salados", subcat: "Cerdo", nombre: "Carne al Pastor", status: "disponible" },
-            { id: 52, paso: "Paso 4: Rellenos Salados", subcat: "Res", nombre: "Bistec de Res", status: "disponible" },
-            { id: 53, paso: "Paso 4: Rellenos Salados", subcat: "Res", nombre: "Arrachera", status: "disponible" },
-
-            // Paso 4: Rellenos Dulces
-            { id: 54, paso: "Paso 4: Rellenos Dulces", subcat: "Fruta Fresca", nombre: "Fresa (Relleno)", status: "disponible" },
-            { id: 55, paso: "Paso 4: Rellenos Dulces", subcat: "Fruta Fresca", nombre: "Plátano", status: "disponible" },
-            { id: 56, paso: "Paso 4: Rellenos Dulces", subcat: "Fruta Fresca", nombre: "Mango (Relleno)", status: "disponible" },
-            { id: 57, paso: "Paso 4: Rellenos Dulces", subcat: "Fruta Fresca", nombre: "Durazno (Relleno)", status: "disponible" },
-
-            // Paso 5: Verduras / Frutas Saladas
-            { id: 58, paso: "Paso 5: Verduras & Frutas", subcat: "Hojas Verdes", nombre: "Lechuga", status: "disponible" },
-            { id: 59, paso: "Paso 5: Verduras & Frutas", subcat: "Hojas Verdes", nombre: "Espinacas Baby", status: "disponible" },
-            { id: 60, paso: "Paso 5: Verduras & Frutas", subcat: "Hojas Verdes", nombre: "Arúgula", status: "disponible" },
-            { id: 61, paso: "Paso 5: Verduras & Frutas", subcat: "Hojas Verdes", nombre: "Berros", status: "disponible" },
-            { id: 62, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Firmes", nombre: "Jitomate en Rodajas", status: "disponible" },
-            { id: 63, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Firmes", nombre: "Pepino", status: "disponible" },
-            { id: 64, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Firmes", nombre: "Cebolla Morada", status: "disponible" },
-            { id: 65, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Firmes", nombre: "Cebolla Blanca", status: "disponible" },
-            { id: 66, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Asados", nombre: "Pimientos Morrones", status: "disponible" },
-            { id: 67, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Asados", nombre: "Calabacitas a la Plancha", status: "disponible" },
-            { id: 68, paso: "Paso 5: Verduras & Frutas", subcat: "Vegetales Asados", nombre: "Berenjenas a la Plancha", status: "disponible" },
-            { id: 69, paso: "Paso 5: Verduras & Frutas", subcat: "Frutas Saladas", nombre: "Piña", status: "disponible" },
-            { id: 70, paso: "Paso 5: Verduras & Frutas", subcat: "Frutas Saladas", nombre: "Mango", status: "disponible" },
-            { id: 71, paso: "Paso 5: Verduras & Frutas", subcat: "Frutas Saladas", nombre: "Durazno", status: "disponible" },
-            { id: 72, paso: "Paso 5: Verduras & Frutas", subcat: "Frutas Saladas", nombre: "Aguacate", status: "disponible" },
-
-            // Paso 6: Aderezos / Extras / Toppings
-            { id: 73, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Aderezo Chipotle", status: "disponible" },
-            { id: 74, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Guacamole", status: "disponible" },
-            { id: 75, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Ranch", status: "disponible" },
-            { id: 76, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Mil Islas", status: "disponible" },
-            { id: 77, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Salsa Valentina", status: "disponible" },
-            { id: 78, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Salsa Botanera", status: "disponible" },
-            { id: 79, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Mayonesa", status: "disponible" },
-            { id: 80, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Ketchup", status: "disponible" },
-            { id: 81, paso: "Paso 6: Extras & Toppings", subcat: "Aderezos Salados", nombre: "Mostaza", status: "disponible" },
-            { id: 82, paso: "Paso 6: Extras & Toppings", subcat: "Toppings Dulces", nombre: "Nuez Picada", status: "disponible" },
-            { id: 83, paso: "Paso 6: Extras & Toppings", subcat: "Toppings Dulces", nombre: "Chispas de Chocolate", status: "disponible" },
-            { id: 84, paso: "Paso 6: Extras & Toppings", subcat: "Toppings Dulces", nombre: "Granola", status: "disponible" },
-
-            // Empaques
-            { id: 85, paso: "Extra: Empaques", subcat: "Suministro", nombre: "Bolsas", status: "disponible" },
-            { id: 86, paso: "Extra: Empaques", subcat: "Suministro", nombre: "Servilletas", status: "disponible" },
-            { id: 87, paso: "Extra: Empaques", subcat: "Suministro", nombre: "Caja para Cuernito", status: "disponible" }
-        ];
-
-        let categoriaSeleccionada = "Todos";
-
-        // Obtener categorías únicas
-        function obtenerCategorias() {
-            const pasos = ["Todos", ...new Set(inventarioData.map(item => item.paso))];
-            const container = document.getElementById("categoriesContainer");
-            container.innerHTML = "";
-
-            pasos.forEach(paso => {
-                const chip = document.createElement("div");
-                chip.className = `cat-chip ${paso === categoriaSeleccionada ? 'active' : ''}`;
-                chip.innerText = paso.replace(/Paso \d+: /, ''); // Nombre simplificado en el chip
-                chip.onclick = () => {
-                    categoriaSeleccionada = paso;
-                    obtenerCategorias();
-                    renderizarInventario();
-                };
-                container.appendChild(chip);
-            });
-        }
-
-        // Cambiar estado de disponibilidad mediante Toggle
-        function toggleDisponibilidad(id) {
-            const item = inventarioData.find(i => i.id === id);
-            if (item) {
-                item.status = item.status === "agotado" ? "disponible" : "agotado";
-                renderizarInventario();
-            }
-        }
-
-        // Cambiar nivel de estado mediante Select
-        function cambiarEstadoSelect(id, nuevoEstado) {
-            const item = inventarioData.find(i => i.id === id);
-            if (item) {
-                item.status = nuevoEstado;
-                renderizarInventario();
-            }
-        }
-
-        // Actualizar tarjetas de métricas arriba
-        function actualizarMetricas() {
-            const disp = inventarioData.filter(i => i.status === "disponible").length;
-            const poco = inventarioData.filter(i => i.status === "poco").length;
-            const agot = inventarioData.filter(i => i.status === "agotado").length;
-
-            document.getElementById("countDisponible").innerText = disp;
-            document.getElementById("countPoco").innerText = poco;
-            document.getElementById("countAgotado").innerText = agot;
-        }
-
-        // Renderizar la lista
-        function renderizarInventario() {
-            const container = document.getElementById("inventoryList");
-            const busqueda = document.getElementById("searchInput").value.toLowerCase();
-            container.innerHTML = "";
-
-            // Filtrado
-            let filtrados = inventarioData.filter(item => {
-                const coincideCat = categoriaSeleccionada === "Todos" || item.paso === categoriaSeleccionada;
-                const coincideBusqueda = item.nombre.toLowerCase().includes(busqueda) || item.subcat.toLowerCase().includes(busqueda);
-                return coincideCat && coincideBusqueda;
-            });
-
-            if (filtrados.length === 0) {
-                container.innerHTML = `<div class="empty-state">No se encontraron insumos con ese criterio.</div>`;
-                actualizarMetricas();
-                return;
-            }
-
-            // Agrupar por Paso/Categoría
-            const agrupados = {};
-            filtrados.forEach(item => {
-                if (!agrupados[item.paso]) agrupados[item.paso] = [];
-                agrupados[item.paso].push(item);
-            });
-
-            for (const paso in agrupados) {
-                const section = document.createElement("div");
-                section.className = "step-section";
-
-                const title = document.createElement("div");
-                title.className = "step-title";
-                title.innerText = paso;
-                section.appendChild(title);
-
-                agrupados[paso].forEach(item => {
-                    const isChecked = item.status !== "agotado";
-                    const card = document.createElement("div");
-                    card.className = `item-card status-${item.status}`;
-
-                    card.innerHTML = `
-                        <div class="item-info">
-                            <div class="item-name">${item.nombre}</div>
-                            <div class="item-subcat">${item.subcat}</div>
-                        </div>
-                        <div class="item-actions">
-                            <select class="status-select" onchange="cambiarEstadoSelect(${item.id}, this.value)">
-                                <option value="disponible" ${item.status === 'disponible' ? 'selected' : ''}>🟢 Disponible</option>
-                                <option value="poco" ${item.status === 'poco' ? 'selected' : ''}>🟡 Poco Stock</option>
-                                <option value="agotado" ${item.status === 'agotado' ? 'selected' : ''}>🔴 Agotado</option>
-                            </select>
-                            <label class="switch">
-                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleDisponibilidad(${item.id})">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                    `;
-                    section.appendChild(card);
-                });
-
-                container.appendChild(section);
-            }
-
-            actualizarMetricas();
-        }
-
-        function filtrarInventario() {
-            renderizarInventario();
-        }
-
-        // Inicializar vista al cargar
-        obtenerCategorias();
-        renderizarInventario();
     </script>
 </body>
 </html>
