@@ -117,7 +117,7 @@ app.get('/operaciones.html', (req, res) => {
 });
 
 app.get('/almacen.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'almacen.html'));
+    res.sendFile(path.resolve('almacen.html'));
 });
 
 app.get('/', (req, res) => {
