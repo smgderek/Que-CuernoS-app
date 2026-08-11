@@ -29,7 +29,7 @@
             letter-spacing: 1px;
         }
 
-        /* 2. Cuadro Grande de Ingredientes con Scroll Vertical */
+        /* 2. Cuadro Grande de Ingredientes con Scroll Vertical (Soporta +50 o más) */
         .ingredients-box {
             background: #161616;
             border: 2px solid #262626;
@@ -64,11 +64,11 @@
             letter-spacing: 1px;
         }
 
-        /* Contenedor con Scroll Vertical para +50 ingredientes */
+        /* Contenedor con Scroll Vertical fluido */
         .circles-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
             max-height: 280px;
             overflow-y: auto;
@@ -92,7 +92,7 @@
             transform: scale(0.92);
         }
 
-        /* Colores según rangos de stock solicitados */
+        /* Colores estrictos por rangos de stock solicitados */
         .stock-black { background-color: #1a1a1a; border-color: #333; opacity: 0.4; } /* 0 */
         .stock-red { background-color: #7a0c0c; border-color: #ff4d4d; }             /* 1 a 10 */
         .stock-yellow { background-color: #8c7300; border-color: #ffcc00; }          /* 11 a 50 */
@@ -120,7 +120,7 @@
             color: #ffcc00;
         }
 
-        /* 4. Botones de Pantallas Desplegables Inferiores */
+        /* 4. Dos Botones Inferiores (Pantallas Desplegables sin texto estorboso) */
         .bottom-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -145,7 +145,7 @@
             border-color: #ffcc00;
         }
 
-        /* Estilos de Modales Desplegables */
+        /* Estilos de Modales / Pantallas Desplegables */
         .modal {
             display: none;
             position: fixed;
@@ -175,7 +175,7 @@
             padding-bottom: 8px;
         }
 
-        .modal-content input {
+        .modal-content input, .modal-content select {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
@@ -183,6 +183,7 @@
             border: 1px solid #333;
             color: #fff;
             border-radius: 6px;
+            font-size: 0.95rem;
         }
 
         .modal-content button.save-btn {
@@ -227,14 +228,14 @@
     </div>
 
     <div class="bottom-actions">
-        <button class="action-btn" onclick="openModal('compraModal')">💰 Registrar Precios y Compra</button>
-        <button class="action-btn" onclick="openModal('gestorModal')">⚙️ Modificar / Agregar Stock</button>
+        <button class="action-btn" onclick="openModal('compraModal')">💰 Precios de Compra</button>
+        <button class="action-btn" onclick="openModal('gestorModal')">⚙️ Gestionar Stock</button>
     </div>
 
     <div class="modal" id="compraModal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal('compraModal')">&times;</button>
-            <div class="modal-title">💰 Registro de Compra de Ingredientes</div>
+            <div class="modal-title">💰 Registro de Compra</div>
             <input type="text" id="compraIngrediente" placeholder="Nombre del ingrediente">
             <input type="number" id="compraPrecio" placeholder="Precio de compra ($)">
             <input type="date" id="compraFecha">
@@ -245,12 +246,15 @@
     <div class="modal" id="gestorModal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal('gestorModal')">&times;</button>
-            <div class="modal-title">⚙️ Gestor de Stock (Modificar / Eliminar)</div>
+            <div class="modal-title">⚙️ Agregar / Modificar Stock</div>
             <input type="text" id="gestorNombre" placeholder="Nombre del ingrediente">
-            <input type="text" id="gestorEmoji" placeholder="Emoji representativo (ej: 🥓)">
+            <input type="text" id="gestorEmoji" placeholder="Emoji representativo (ej: 🍅)">
             <input type="number" id="gestorStock" placeholder="Cantidad de stock actual">
-            <input type="text" id="gestorCategoria" placeholder="Categoría (salado / dulce)">
-            <button class="save-btn" onclick="guardarStockMod()">Guardar Cambios</button>
+            <select id="gestorCategoria">
+                <option value="salado">Salado</option>
+                <option value="dulce">Dulce</option>
+            </select>
+            <button class="save-btn" onclick="guardarStockMod()">Guardar / Añadir</button>
         </div>
     </div>
 
@@ -259,27 +263,25 @@
             <button class="close-modal" onclick="closeModal('statsModal')">&times;</button>
             <div class="modal-title">📊 Estadísticas de Uso</div>
             <p style="font-size: 0.9rem; color: #ccc; line-height: 1.4;">
-                Aquí se registran las fechas de entrada y salida de los ingredientes con mayor rotación en la cocina.
+                Control de fechas de entrada y salida de ingredientes con mayor rotación en el negocio.
             </p>
         </div>
     </div>
 
     <script>
-        // Lista simulada de ingredientes (puedes tener más de 50 y se acomodarán perfectamente con scroll)
+        // Lista base abierta para que puedas agregar más de 50 ingredientes sin límite
         let ingredientes = [
             { nombre: "Jamón", emoji: "🥓", stock: 0, categoria: "salado" },
             { nombre: "Queso", emoji: "🧀", stock: 8, categoria: "salado" },
             { nombre: "Tocino", emoji: "🍖", stock: 35, categoria: "salado" },
             { nombre: "Nutella", emoji: "🍫", stock: 120, categoria: "dulce" },
-            { nombre: "Fresa", emoji: "🍓", stock: 45, categoria: "dulce" },
-            { nombre: "Masa Hojaldre", emoji: "🥐", stock: 550, categoria: "salado" }
+            { nombre: "Fresa", emoji: "🍓", stock: 45, categoria: "dulce" }
         ];
 
         let categorias = ["todos", "salados", "dulces"];
         let categoriaIndex = 0;
 
-        // Regla de colores basada en stock exacto:
-        // 0: Negro | 1-10: Rojo | 11-50: Amarillo | 51-1000: Verde
+        // Reglas de color exactas: 0 (Negro), 1-10 (Rojo), 11-50 (Amarillo), 51-1000 (Verde)
         function getStockClass(stock) {
             if (stock === 0) return "stock-black";
             if (stock >= 1 && stock <= 10) return "stock-red";
@@ -296,7 +298,12 @@
             document.getElementById("categoryTitle").textContent = catActual.toUpperCase();
 
             ingredientes.forEach(ing => {
-                if (catActual === "todos" || ing.categoria === catActual.slice(0, -1)) {
+                // Validación flexible de categoría
+                let matchCat = (catActual === "todos") || 
+                               (catActual === "salados" && ing.categoria === "salado") || 
+                               (catActual === "dulces" && ing.categoria === "dulce");
+
+                if (matchCat) {
                     const circle = document.createElement("div");
                     circle.className = `ingredient-circle ${getStockClass(ing.stock)}`;
                     circle.innerHTML = ing.emoji; // Solo emoji sin texto
@@ -314,7 +321,6 @@
             renderIngredients();
         }
 
-        // Control de modales desplegables
         function openModal(modalId) {
             document.getElementById(modalId).style.display = "flex";
         }
@@ -323,20 +329,25 @@
             document.getElementById(modalId).style.display = "none";
         }
 
-        // Acciones de formularios
         function registrarCompra() {
-            alert("¡Compra y precio registrados correctamente!");
+            const ing = document.getElementById("compraIngrediente").value;
+            const precio = document.getElementById("compraPrecio").value;
+            if(!ing || !precio) {
+                alert("Completa los datos de compra.");
+                return;
+            }
+            alert(`Compra registrada con éxito para: ${ing}`);
             closeModal('compraModal');
         }
 
         function guardarStockMod() {
-            const nombre = document.getElementById("gestorNombre").value;
-            const emoji = document.getElementById("gestorEmoji").value || "📦";
+            const nombre = document.getElementById("gestorNombre").value.trim();
+            const emoji = document.getElementById("gestorEmoji").value.trim() || "📦";
             const stock = parseInt(document.getElementById("gestorStock").value);
-            const categoria = document.getElementById("gestorCategoria").value || "salado";
+            const categoria = document.getElementById("gestorCategoria").value;
 
             if(!nombre || isNaN(stock)) {
-                alert("Por favor completa los campos requeridos.");
+                alert("Por favor ingresa un nombre y un stock válido.");
                 return;
             }
 
@@ -344,13 +355,19 @@
             if(existe) {
                 existe.stock = stock;
                 existe.emoji = emoji;
+                existe.categoria = categoria;
             } else {
                 ingredientes.push({ nombre, emoji, stock, categoria });
             }
 
             renderIngredients();
             closeModal('gestorModal');
-            alert("Stock actualizado con éxito.");
+            alert("¡Ingrediente guardado / actualizado correctamente!");
+            
+            // Limpiar inputs del modal
+            document.getElementById("gestorNombre").value = "";
+            document.getElementById("gestorEmoji").value = "";
+            document.getElementById("gestorStock").value = "";
         }
 
         // Inicializar
